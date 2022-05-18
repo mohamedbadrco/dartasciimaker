@@ -28,6 +28,7 @@ class Imgfilterobj {
   Map<String, bool>? brc;
   Map<String, bool>? fonts;
   Map<String, bool>? symbols;
+  int? c;
 
   Imgfilterobj(
     this.bytes,
@@ -37,13 +38,15 @@ class Imgfilterobj {
     this.brc,
     this.fonts,
     this.symbols,
+    int c,
   ) {
     this._vacom = _vacom;
     this._vablur = _vablur;
+    this.c = c;
   }
 }
 
-Uint8List photohash(Imgfilterobj imgfobj) {
+void photohash(Imgfilterobj imgfobj)  {
   img.Image? photo;
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -52,7 +55,7 @@ Uint8List photohash(Imgfilterobj imgfobj) {
 
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: (width * imgfobj._vacom!.round()));
+  photo = img.copyResize(photo, width: ((width * imgfobj._vacom!).round()));
 
   height = photo.height;
 
@@ -213,13 +216,27 @@ Uint8List photohash(Imgfilterobj imgfobj) {
     }
   }
 
-  return Uint8List.fromList(img.encodePng(imageg));
+   File('out/image${imgfobj.c}.png').writeAsBytesSync(img.encodePng(imageg));
+
+  // File quotes = File('../asciiart/image.png');
+  // print(quotes);
+
+  //  await quotes.writeAsBytes(res);
+
 }
+// Future<void> writeimg(k,c) async {
 
-void main(List<String> arguments) {
+//   File quotes = File('./asciiart/image${c}.png');
 
+//    await quotes.writeAsBytes(k!);
   
-    double _valuecom = 1;
+
+// }
+Future<void> main(List<String> arguments) async {
+      
+      int counter = 168;
+  
+    double _valuecom = 0.5;
 
   double _valueblur = 0.0;
 
@@ -241,9 +258,6 @@ void main(List<String> arguments) {
   Map<String, bool> brcmap = {
     'white': true,
     'black': false,
-    'red': false,
-    'green': false,
-    'blue': false
   };
 
   Map<String, bool> fontmap = {'14 px': true, '24 px': false};
@@ -254,18 +268,64 @@ void main(List<String> arguments) {
     'only letters': false
   };
 
+  Uint8List? imagebytes;
+
    List<String> images = [''];
+
+   List keysf = filtersmap.keys.toList();
+
+   List keysb = brcmap.keys.toList();
+
+   List keyss = symbolsmap.keys.toList();
    
   Directory dir = Directory('./image');
 // execute an action on each entry
 dir.list(recursive: false).forEach((f) {
+  
   if (f is File) 
   {
-    Uint8List imagebytes = (f as File).readAsBytesSync();
-    var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur, filtersmap,
-          brcmap, fontmap, symbolsmap);
-    imagebytes = photohash(imgfobj);
+    print(f);
+    imagebytes = (f as File).readAsBytesSync();
+
+    for (int i = 0; i<keysf.length;i++){
+
+      filtersmap.forEach((k, v) => filtersmap[k] = false);
+
+      filtersmap[keysf[i]] = true;
+
+      for (int j = 0; j<keysb.length;j++){
+
+      brcmap.forEach((k, v) => brcmap[k] = false);
+
+      brcmap[keysb[j]] = true;
+
+        for (int k = 0; k<keyss.length;k++){
+
+        symbolsmap.forEach((g, v) => symbolsmap[g] = false);
+
+      symbolsmap[keyss[k]] = true;
+
+
+
+
+        var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur, filtersmap,
+          brcmap, fontmap, symbolsmap,counter);
+    photohash(imgfobj);
+    counter ++;
+
+
+    }
+    }
+    }
+    
+    
+    
+   
+
   }
+  
+
+  
   
   
 });
