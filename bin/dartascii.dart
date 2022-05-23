@@ -1,4 +1,4 @@
-import 'package:dartascii/dartascii.dart' as dartascii;
+// import 'package:dartascii/dartascii.dart' as dartascii;
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 import 'dart:io';
@@ -10,16 +10,27 @@ class Imgfilterobj {
   final String gscale2 = '@%#*+=-:. ';
 
   final String gscale3 = "BWMoahkbdpqwmZOQLCJUYXzcvunxrjftilI ";
-
   final List<int> rainbow = [
-    0Xffd30094,
-    0Xff82004b,
-    0Xffff0000,
-    0Xff00ff00,
-    0Xff00ffff,
-    0Xff007fff,
-    0Xff0000ff
+    0X00d30094,
+    0X0082004b,
+    0X00ff0000,
+    0X0000ff00,
+    0X0000ffff,
+    0X00007fff,
+    0X000000ff
   ];
+
+  final Map<String, int> singlecolormap = {
+    'Violet symbols': 0X00d30094,
+    'Indigo symbols': 0X0082004b,
+    'Blue symbols': 0X00ff0000,
+    'Green symbols': 0X0000ff00,
+    'Yellow symbols': 0X0000ffff,
+    'Orange symbols': 0X00007fff,
+    'Red symbols': 0X000000ff,
+    'Grey scale': 0X00000000,
+    'terminal green text': 0X0026F64A
+  };
 
   Uint8List? bytes;
   double? _vacom;
@@ -30,23 +41,14 @@ class Imgfilterobj {
   Map<String, bool>? symbols;
   int? c;
 
-  Imgfilterobj(
-    this.bytes,
-    double _vacom,
-    double _vablur,
-    this.filters,
-    this.brc,
-    this.fonts,
-    this.symbols,
-    int c,
-  ) {
+  Imgfilterobj(this.bytes, double _vacom, double _vablur, this.filters,
+      this.brc, this.fonts, this.symbols, this.c) {
     this._vacom = _vacom;
     this._vablur = _vablur;
-    this.c = c;
   }
 }
 
-void photohash(Imgfilterobj imgfobj)  {
+void photohash(Imgfilterobj imgfobj) {
   img.Image? photo;
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -152,15 +154,16 @@ void photohash(Imgfilterobj imgfobj)  {
           int red = photodata[i * width + j] & 0xff;
           int green = (photodata[i * width + j] >> 8) & 0xff;
           int blue = (photodata[i * width + j] >> 16) & 0xff;
-          int alpha = (photodata[i * width + j] >> 24) & 0xff;
 
           //cal avg
-          double avg = (blue + red + green + alpha) / 4;
+          double avg = (blue + red + green) / 3;
 
           var k = gscale[((avg * gscalelen) / 255).round()];
 
+          int alpha = (((photodata[i * width + j] >> 24) & 0xff) << 24);
+
           img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
-              color: imgfobj.rainbow[(i * width + j) % 7]);
+              color: (imgfobj.rainbow[(i * width + j) % 7] ^ alpha));
         }
       }
     } else {
@@ -175,68 +178,69 @@ void photohash(Imgfilterobj imgfobj)  {
           int red = photodata[i * width + j] & 0xff;
           int green = (photodata[i * width + j] >> 8) & 0xff;
           int blue = (photodata[i * width + j] >> 16) & 0xff;
-          int alpha = (photodata[i * width + j] >> 24) & 0xff;
 
           //cal avg
-          double avg = (blue + red + green + alpha) / 4;
+          double avg = (blue + red + green) / 3;
+
+          var k = gscale[((avg * gscalelen) / 255).round()];
+          int alpha = (((photodata[i * width + j] >> 24) & 0xff) << 24);
+
+          img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
+              color: (rainbow0[((avg * 6) / 255).round()]) ^ alpha);
+        }
+      }
+    }
+  }
+  List<String> singlecolor = imgfobj.singlecolormap.keys.toList();
+
+  for (int k = 0; k < singlecolor.length; k++) {
+    if (imgfobj.filters![singlecolor[k]] == true) {
+      var printcolor = imgfobj.singlecolormap[singlecolor[k]];
+
+      if ((singlecolor[k] == 'Grey scale') && imgfobj.brc!['black'] == true) {
+        printcolor = 0X00ffffff;
+      }
+
+      for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+          //get pixle colors
+
+          int red = photodata[i * width + j] & 0xff;
+          int green = (photodata[i * width + j] >> 8) & 0xff;
+          int blue = (photodata[i * width + j] >> 16) & 0xff;
+
+          //cal avg
+          double avg = (blue + red + green) / 3;
 
           var k = gscale[((avg * gscalelen) / 255).round()];
 
+          int alpha = (((photodata[i * width + j] >> 24) & 0xff) << 24);
+
           img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
-              color: rainbow0[((avg * 6) / 255).round()]);
+              color: (printcolor! ^ alpha));
         }
       }
     }
   }
 
-  if ((imgfobj.filters!['Grey scale'] == true) ||
-      (imgfobj.filters!['green text'] == true)) {
-    var printcolor = 0Xff000000;
-    if (imgfobj.filters!['green text'] == true) {
-      printcolor = 0Xff26F64A;
-    }
-
-    for (int i = 0; i < height; i++) {
-      for (int j = 0; j < width; j++) {
-        //get pixle colors
-
-        int red = photodata[i * width + j] & 0xff;
-        int green = (photodata[i * width + j] >> 8) & 0xff;
-        int blue = (photodata[i * width + j] >> 16) & 0xff;
-        int alpha = (photodata[i * width + j] >> 24) & 0xff;
-
-        //cal avg
-        double avg = (blue + red + green + alpha) / 4;
-
-        var k = gscale[((avg * gscalelen) / 255).round()];
-
-        img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
-            color: printcolor);
-      }
-    }
-  }
-
-   File('out/image${imgfobj.c}.png').writeAsBytesSync(img.encodePng(imageg));
+  File('haha/image${imgfobj.c}.png').writeAsBytesSync(img.encodePng(imageg));
 
   // File quotes = File('../asciiart/image.png');
   // print(quotes);
 
   //  await quotes.writeAsBytes(res);
-
 }
 // Future<void> writeimg(k,c) async {
 
 //   File quotes = File('./asciiart/image${c}.png');
 
 //    await quotes.writeAsBytes(k!);
-  
 
 // }
 Future<void> main(List<String> arguments) async {
-      
-      int counter = 168;
-  
-    double _valuecom = 0.5;
+  int counter = 1176;
+
+  double _valuecom = 0.25;
 
   double _valueblur = 0.0;
 
@@ -244,16 +248,23 @@ Future<void> main(List<String> arguments) async {
     'Grey scale': true,
     'Normal colors': false,
     'sepia': false,
-    'green text': false,
+    'terminal green text': false,
     'photo hash 1': false,
     'photo hash 2': false,
     'photo hash 3': false,
+    'Violet symbols': false,
+    'Indigo symbols': false,
+    'Blue symbols': false,
+    'Green symbols': false,
+    'Yellow symbols': false,
+    'Orange symbols': false,
+    'Red symbols': false,
   };
 
-  Map<String, bool> typemap = {
-    'image': true,
-    'text': false,
-  };
+  // Map<String, bool> typemap = {
+  //   'image': true,
+  //   'text': false,
+  // };
 
   Map<String, bool> brcmap = {
     'white': true,
@@ -270,65 +281,43 @@ Future<void> main(List<String> arguments) async {
 
   Uint8List? imagebytes;
 
-   List<String> images = [''];
+  // List<String> images = [''];
 
-   List keysf = filtersmap.keys.toList();
+  List keysf = filtersmap.keys.toList();
 
-   List keysb = brcmap.keys.toList();
+  List keysb = brcmap.keys.toList();
 
-   List keyss = symbolsmap.keys.toList();
-   
+  List keyss = symbolsmap.keys.toList();
+
   Directory dir = Directory('./image');
 // execute an action on each entry
-dir.list(recursive: false).forEach((f) {
-  
-  if (f is File) 
-  {
-    print(f);
-    imagebytes = (f as File).readAsBytesSync();
+  dir.list(recursive: false).forEach((f) {
+    if (f is File) {
+      print(f);
+      imagebytes = (f).readAsBytesSync();
 
-    for (int i = 0; i<keysf.length;i++){
+      for (int i = 0; i < keysf.length; i++) {
+        filtersmap.forEach((k, v) => filtersmap[k] = false);
 
-      filtersmap.forEach((k, v) => filtersmap[k] = false);
+        filtersmap[keysf[i]] = true;
 
-      filtersmap[keysf[i]] = true;
+        for (int j = 0; j < keysb.length; j++) {
+          brcmap.forEach((k, v) => brcmap[k] = false);
 
-      for (int j = 0; j<keysb.length;j++){
+          brcmap[keysb[j]] = true;
 
-      brcmap.forEach((k, v) => brcmap[k] = false);
+          for (int k = 0; k < keyss.length; k++) {
+            symbolsmap.forEach((g, v) => symbolsmap[g] = false);
 
-      brcmap[keysb[j]] = true;
+            symbolsmap[keyss[k]] = true;
 
-        for (int k = 0; k<keyss.length;k++){
-
-        symbolsmap.forEach((g, v) => symbolsmap[g] = false);
-
-      symbolsmap[keyss[k]] = true;
-
-
-
-
-        var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur, filtersmap,
-          brcmap, fontmap, symbolsmap,counter);
-    photohash(imgfobj);
-    counter ++;
-
-
+            var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
+                filtersmap, brcmap, fontmap, symbolsmap, counter);
+            photohash(imgfobj);
+            counter++;
+          }
+        }
+      }
     }
-    }
-    }
-    
-    
-    
-   
-
-  }
-  
-
-  
-  
-  
-});
-
-
+  });
 }
