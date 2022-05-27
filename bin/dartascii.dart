@@ -2,6 +2,7 @@
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 import 'dart:io';
+import 'dart:math';
 
 class Imgfilterobj {
   final String gscale1 =
@@ -81,7 +82,7 @@ void photohash(Imgfilterobj imgfobj) {
 
   img.BitmapFont drawfonts = img.arial_14;
 
-  int fontindex = 12;
+  int fontindex = 13;
 
   if (imgfobj.fonts!['24 px'] == true) {
     drawfonts = img.arial_24;
@@ -221,6 +222,157 @@ void photohash(Imgfilterobj imgfobj) {
         }
       }
     }
+    
+    if(imgfobj.filters!['Rainbow Flag'] == true || imgfobj.filters!['Rainbow Flag Reversed'] == true) {
+      var rainbow0 = imgfobj.rainbow;
+      
+      if (imgfobj.filters!['Rainbow Flag Reversed'] == true) {
+        rainbow0 = imgfobj.rainbow.reversed.toList();
+      }
+        for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+          //get pixle colors
+
+          int red = photodata[i * width + j] & 0xff;
+          int green = (photodata[i * width + j] >> 8) & 0xff;
+          int blue = (photodata[i * width + j] >> 16) & 0xff;
+
+          //cal avg
+          double avg = (blue + red + green) / 3;
+
+          var k = gscale[((avg * gscalelen) / 255).round()];
+
+          int alpha = (((photodata[i * width + j] >> 24) & 0xff) << 24);
+
+          img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
+              color: (rainbow0[i ~/ (height/7)] ^ alpha));
+        }
+      }
+
+    }
+
+    if(imgfobj.filters!['Rainbow Random'] == true ) {
+
+      var rainbow0 = imgfobj.rainbow;
+
+      var g = Random(45);
+      
+        for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+          //get pixle colors
+
+          int red = photodata[i * width + j] & 0xff;
+          int green = (photodata[i * width + j] >> 8) & 0xff;
+          int blue = (photodata[i * width + j] >> 16) & 0xff;
+
+          //cal avg
+          double avg = (blue + red + green) / 3;
+
+          var k = gscale[((avg * gscalelen) / 255).round()];
+
+          int alpha = (((photodata[i * width + j] >> 24) & 0xff) << 24);
+
+          img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
+              color: (rainbow0[g.nextInt(7)] ^ alpha));
+        }
+      }
+
+    }
+
+    if(imgfobj.filters!['Random colors'] == true ) {
+
+      var g = Random(56);
+
+        for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+          //get pixle colors
+
+          int red = photodata[i * width + j] & 0xff;
+          int green = (photodata[i * width + j] >> 8) & 0xff;
+          int blue = (photodata[i * width + j] >> 16) & 0xff;
+
+
+          //cal avg
+          double avg = (blue + red + green) / 3;
+
+
+
+          
+      var  color = 0X00000000  | g.nextInt(256) | (  g.nextInt(256)) << 8 | ( g.nextInt(256) << 16);
+       
+
+          var k = gscale[((avg * gscalelen) / 255).round()];
+
+          int alpha = (((photodata[i * width + j] >> 24) & 0xff) << 24);
+
+          img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
+              color: (color ^ alpha));
+        }
+      }
+
+    }
+    if(imgfobj.filters!['cmatrix'] == true ) {
+
+      var g = Random(56);
+
+      int index =  g.nextInt(21) + 15 ;
+
+      bool visable = true;
+
+      var color = 0X0026F64A ;
+
+        for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+          //get pixle colors
+
+          int red = photodata[j * width + i] & 0xff;
+          int green = (photodata[j * width + i] >> 8) & 0xff;
+          int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+
+          //cal avg
+          double avg = (blue + red + green) / 3;
+
+          index = index - 1;
+
+          if (index == 0){
+            
+            if (visable == true){
+                   index =  g.nextInt(21) + 5;
+                   visable =false;
+            }else{
+                 index =  g.nextInt(21) + 15 ;
+                   visable = true;
+            }
+          }
+
+       
+
+          var k = gscale[((avg * gscalelen) / 255).round()];
+
+          int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+          if (visable == true){
+            if(index == 1 ){
+              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+              color: (0X00ffffff ^ alpha));
+
+            }else{
+
+            
+          img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+              color: (color ^ alpha)); }
+          }
+
+
+        }
+      }
+
+    }
+
+
+
+
   }
 
   File('haha/image${imgfobj.c}.png').writeAsBytesSync(img.encodePng(imageg));
@@ -238,14 +390,14 @@ void photohash(Imgfilterobj imgfobj) {
 
 // }
 Future<void> main(List<String> arguments) async {
-  int counter = 1176;
+  int counter = 1;
 
-  double _valuecom = 0.25;
+  double _valuecom = 0.5;
 
   double _valueblur = 0.0;
 
   Map<String, bool> filtersmap = {
-    'Grey scale': true,
+    'Grey scale': false,
     'Normal colors': false,
     'sepia': false,
     'terminal green text': false,
@@ -259,6 +411,12 @@ Future<void> main(List<String> arguments) async {
     'Yellow symbols': false,
     'Orange symbols': false,
     'Red symbols': false,
+    'Rainbow Flag':false,
+    'Rainbow Flag Reversed':true,
+    'Rainbow Random':false,
+    'Random colors':false,
+    'cmatrix':false
+    
   };
 
   // Map<String, bool> typemap = {
@@ -267,8 +425,8 @@ Future<void> main(List<String> arguments) async {
   // };
 
   Map<String, bool> brcmap = {
-    'white': true,
-    'black': false,
+    'white': false,
+    'black': true,
   };
 
   Map<String, bool> fontmap = {'14 px': true, '24 px': false};
@@ -296,28 +454,29 @@ Future<void> main(List<String> arguments) async {
       print(f);
       imagebytes = (f).readAsBytesSync();
 
-      for (int i = 0; i < keysf.length; i++) {
-        filtersmap.forEach((k, v) => filtersmap[k] = false);
+      // for (int i = 0; i < keysf.length; i++) {
+      //   filtersmap.forEach((k, v) => filtersmap[k] = false);
 
-        filtersmap[keysf[i]] = true;
+      //   filtersmap[keysf[i]] = true;
 
-        for (int j = 0; j < keysb.length; j++) {
-          brcmap.forEach((k, v) => brcmap[k] = false);
+      //   for (int j = 0; j < keysb.length; j++) {
+      //     brcmap.forEach((k, v) => brcmap[k] = false);
 
-          brcmap[keysb[j]] = true;
+      //     brcmap[keysb[j]] = true;
 
-          for (int k = 0; k < keyss.length; k++) {
-            symbolsmap.forEach((g, v) => symbolsmap[g] = false);
+      //     for (int k = 0; k < keyss.length; k++) {
+      //       symbolsmap.forEach((g, v) => symbolsmap[g] = false);
 
-            symbolsmap[keyss[k]] = true;
+      //       symbolsmap[keyss[k]] = true;
 
             var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
                 filtersmap, brcmap, fontmap, symbolsmap, counter);
             photohash(imgfobj);
+
             counter++;
-          }
-        }
-      }
+      //     }
+      //   }
+      // }
     }
   });
 }
