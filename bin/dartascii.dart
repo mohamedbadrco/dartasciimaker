@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'dart:math';
 
+
 class Imgfilterobj {
   final String gscale1 =
       "\$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
@@ -48,6 +49,90 @@ class Imgfilterobj {
     this._vablur = _vablur;
   }
 }
+
+class Imgfilterobjtxt {
+  final String gscale1 =
+      "\$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
+
+  final String gscale2 = '@%#*+=-:. ';
+
+  final String gscale3 = "BWMoahkbdpqwmZOQLCJUYXzcvunxrjftilI ";
+  Uint8List? bytes;
+  Map<String, bool>? symbols;
+  int clos = 100;
+
+  Imgfilterobjtxt(this.bytes, this.clos, this.symbols) {
+    // Ignored
+  }
+}
+
+Future<void> photohashtxt(Imgfilterobjtxt imgfobjtxt) async {
+  List<String> res = [''];
+
+  img.Image? photo;
+String name = 'textascii';
+
+
+  photo = img.decodeImage(imgfobjtxt.bytes!);
+
+  photo = img.copyResize(photo!, width: imgfobjtxt.clos);
+
+  int height = photo.height;
+
+  int width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  String gscale = imgfobjtxt.gscale1;
+
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobjtxt.symbols!['only symbols'] == true) {
+    gscale = imgfobjtxt.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobjtxt.symbols!['only letters'] == true) {
+    gscale = imgfobjtxt.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  for (int i = 0; i < height; i++) {
+    String row = '';
+    for (int j = 0; j < width; j++) {
+      //get pixle colors
+
+      int red = photodata[i * width + j] & 0xff;
+      int green = (photodata[i * width + j] >> 8) & 0xff;
+      int blue = (photodata[i * width + j] >> 16) & 0xff;
+      int alpha = (photodata[i * width + j] >> 24) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green + alpha) / 4;
+
+      String k = gscale[((avg * gscalelen) / 255).round()];
+      row = row + k;
+    }
+    res.add(row);
+  }
+
+  // List<String> res1 = res;
+
+
+      int lentxt = res.length;
+
+    
+
+        File f = File('haha/$name.txt');
+
+        for (int i = 0; i < lentxt; i++) {
+       await f.writeAsString("${res[i]} \n", mode: FileMode.append);
+       print(res[i]);
+
+}
+}
+
+
 
 void photohash(Imgfilterobj imgfobj) {
   img.Image? photo;
@@ -130,7 +215,7 @@ void photohash(Imgfilterobj imgfobj) {
         int alpha = (photodata[i * width + j] >> 24) & 0xff;
 
         //cal avg
-        double avg = (blue + red + green + alpha) / 4;
+        double avg = (blue + red + green ) / 3;
 
         var k = gscale[((avg * gscalelen) / 255).round()];
 
@@ -281,7 +366,7 @@ void photohash(Imgfilterobj imgfobj) {
 
     if(imgfobj.filters!['Random colors'] == true ) {
 
-      var g = Random(56);
+      var g = Random(photodata[Random(56).nextInt(256)]);
 
         for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -315,7 +400,7 @@ void photohash(Imgfilterobj imgfobj) {
 
       var g = Random(56);
 
-      int index =  g.nextInt(21) + 15 ;
+      int index =  g.nextInt(21) + 20 ;
 
       bool visable = true;
 
@@ -338,10 +423,10 @@ void photohash(Imgfilterobj imgfobj) {
           if (index == 0){
             
             if (visable == true){
-                   index =  g.nextInt(21) + 5;
+                   index =  g.nextInt(21) + 2;
                    visable =false;
             }else{
-                 index =  g.nextInt(21) + 15 ;
+                 index =  g.nextInt(21) + 20 ;
                    visable = true;
             }
           }
@@ -370,6 +455,66 @@ void photohash(Imgfilterobj imgfobj) {
 
     }
 
+    if(imgfobj.filters!['cmatrix full colors'] == true ) {
+
+      var g = Random(56);
+
+      int index =  g.nextInt(21) + 20 ;
+
+      bool visable = true;
+
+      var color = 0X0026F64A ;
+
+        for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+          //get pixle colors
+
+          int red = photodata[j * width + i] & 0xff;
+          int green = (photodata[j * width + i] >> 8) & 0xff;
+          int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+
+          //cal avg
+          double avg = (blue + red + green) / 3;
+
+          index = index - 1;
+
+          if (index == 0){
+            
+            if (visable == true){
+                   index =  g.nextInt(21) + 2;
+                   visable =false;
+            }else{
+                 index =  g.nextInt(21) + 20 ;
+                   visable = true;
+            }
+          }
+
+       
+
+          var k = gscale[((avg * gscalelen) / 255).round()];
+
+          int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+          if (visable == true){
+            if(index == 1 ){
+              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+              color: (0X00ffffff ^ alpha));
+
+            }else{
+
+            
+          img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+              color: (photodata[j * width + i] )); }
+          }
+
+
+        }
+      }
+
+    }
+
+
 
 
 
@@ -390,6 +535,8 @@ void photohash(Imgfilterobj imgfobj) {
 
 // }
 Future<void> main(List<String> arguments) async {
+
+  print(arguments);
   int counter = 1;
 
   double _valuecom = 0.5;
@@ -412,10 +559,12 @@ Future<void> main(List<String> arguments) async {
     'Orange symbols': false,
     'Red symbols': false,
     'Rainbow Flag':false,
-    'Rainbow Flag Reversed':true,
+    'Rainbow Flag Reversed':false,
     'Rainbow Random':false,
     'Random colors':false,
-    'cmatrix':false
+    'cmatrix':false,
+    'cmatrix full colors': true
+
     
   };
 
@@ -436,6 +585,8 @@ Future<void> main(List<String> arguments) async {
     'only symbols': false,
     'only letters': false
   };
+
+  int? columns = 120;
 
   Uint8List? imagebytes;
 
@@ -472,8 +623,12 @@ Future<void> main(List<String> arguments) async {
             var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
                 filtersmap, brcmap, fontmap, symbolsmap, counter);
             photohash(imgfobj);
+                      // var imgfobjtxt =  Imgfilterobjtxt(imagebytes!, columns!, symbolsmap);
 
-            counter++;
+     
+                      //      photohashtxt(imgfobjtxt); 
+
+                    counter++;
       //     }
       //   }
       // }
