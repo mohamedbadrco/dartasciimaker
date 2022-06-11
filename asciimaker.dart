@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 
+
 class Imgfilterobj {
   final String gscale1 =
       "\$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
@@ -66,6 +67,7 @@ class Imgfilterobjtxt {
     // Ignored
   }
 }
+
 
 Future<void> photohashtxt(Imgfilterobjtxt imgfobjtxt) async {
   List<String> res = [''];
@@ -1055,7 +1057,7 @@ void fadeframes(Imgfilterobj imgfobj) {
         int red = photodata[i * width + j] & 0xff;
         int green = (photodata[i * width + j] >> 8) & 0xff;
         int blue = (photodata[i * width + j] >> 16) & 0xff;
-        int alpha = (photodata[i * width + j] >> 24) & 0xff;
+        
 
         //cal avg
         double avg = (blue + red + green ) / 3;
@@ -1076,7 +1078,12 @@ void fadeframes(Imgfilterobj imgfobj) {
 
 
 
-void fadeframes(Imgfilterobj imgfobj) {
+void shiftframes(Imgfilterobj imgfobj) {
+  
+  
+final folderName="shift${imgfobj.c}";
+final path= Directory("$folderName");
+path.create();
 
 
   int fconter = 0 ;
@@ -1134,10 +1141,10 @@ void fadeframes(Imgfilterobj imgfobj) {
     gscalelen = gscale.length - 1;
   }
 
+  var rainbow = imgfobj.rainbow ;
   
-  List<int> lints = [1,2,4,8,16,32,64,height*width];
 
-   for (int o = 0; o < lints.length; o++) {
+   for (int o = 0; o < 7 ; o++) {
      img.Image imageg = img.Image(width * fontindex, height * fontindex);
 
      img.fill(imageg, fillcolor); 
@@ -1149,19 +1156,22 @@ void fadeframes(Imgfilterobj imgfobj) {
         int red = photodata[i * width + j] & 0xff;
         int green = (photodata[i * width + j] >> 8) & 0xff;
         int blue = (photodata[i * width + j] >> 16) & 0xff;
-        int alpha = (photodata[i * width + j] >> 24) & 0xff;
+        int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
 
         //cal avg
         double avg = (blue + red + green ) / 3;
 
         var k = gscale[((avg * gscalelen) / 255).round()];
-       if (i % lints[o] == 0 && j % lints[o] == 0){
+        
         img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
-            color: photodata[i * width + j]);  }
+            color: (rainbow[((avg * 6) / 255).round()]) ^ alpha );  
             
-            }}  
-
-         File('sframes/frame${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+            }
+            }  
+          rainbow.insert(0, rainbow[6]);
+          rainbow.removeLast();
+          print(rainbow);
+         File('${folderName}/frame${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
       fconter += 1;
    }
 
@@ -1259,6 +1269,7 @@ Future<void> main(List<String> arguments) async {
                 filtersmap, brcmap, fontmap, symbolsmap, counter,qouting);
             // photohash(imgfobj);
             fadeframes(imgfobj);
+            shiftframes(imgfobj);
             // cmatrixframscolor(imgfobj);
                       // var imgfobjtxt =  Imgfilterobjtxt(imagebytes!, columns!, symbolsmap);
 
