@@ -217,7 +217,6 @@ void photohash(Imgfilterobj imgfobj) {
              
 
         int index =  g.nextInt(37) ;
-        print(index);
 
         if ( index > 32 ){
            
@@ -225,7 +224,7 @@ void photohash(Imgfilterobj imgfobj) {
 
           img.drawLine(imageg, j * fontindex  , i * fontindex - 6 
         , j * fontindex + index * 13  , i * fontindex - 6,
-         imgfobj.rainbow[g.nextInt(7)] ^ 0xff000000 , thickness: 13);
+         imgfobj.rainbow[g.nextInt(7)] ^ 0x88000000 , thickness: 13);
 
         }
         
@@ -983,6 +982,193 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
 }
 
 
+void fadeframes(Imgfilterobj imgfobj) {
+
+
+  int fconter = 0 ;
+  img.Image? photo;
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * imgfobj._vacom!).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  if (imgfobj.brc!['black'] == true) {
+    fillcolor = img.getColor(0, 0, 0);
+  } else if (imgfobj.brc!['red'] == true) {
+    fillcolor = img.getColor(255, 0, 0);
+  } else if (imgfobj.brc!['green'] == true) {
+    fillcolor = img.getColor(0, 255, 0);
+  } else if (imgfobj.brc!['blue'] == true) {
+    fillcolor = img.getColor(0, 0, 255);
+  }
+
+  img.BitmapFont drawfonts = img.arial_14;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
+
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  
+  List<int> lints = [1,2,4,8,16,32,64,height*width];
+
+   for (int o = 0; o < lints.length; o++) {
+     img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+     img.fill(imageg, fillcolor); 
+
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        //get pixle colors
+
+        int red = photodata[i * width + j] & 0xff;
+        int green = (photodata[i * width + j] >> 8) & 0xff;
+        int blue = (photodata[i * width + j] >> 16) & 0xff;
+        int alpha = (photodata[i * width + j] >> 24) & 0xff;
+
+        //cal avg
+        double avg = (blue + red + green ) / 3;
+
+        var k = gscale[((avg * gscalelen) / 255).round()];
+       if (i % lints[o] == 0 && j % lints[o] == 0){
+        img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
+            color: photodata[i * width + j]);  }
+            
+            }}  
+
+         File('sframes/frame${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+      fconter += 1;
+   }
+
+
+}
+
+
+
+void fadeframes(Imgfilterobj imgfobj) {
+
+
+  int fconter = 0 ;
+  img.Image? photo;
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * imgfobj._vacom!).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  if (imgfobj.brc!['black'] == true) {
+    fillcolor = img.getColor(0, 0, 0);
+  } else if (imgfobj.brc!['red'] == true) {
+    fillcolor = img.getColor(255, 0, 0);
+  } else if (imgfobj.brc!['green'] == true) {
+    fillcolor = img.getColor(0, 255, 0);
+  } else if (imgfobj.brc!['blue'] == true) {
+    fillcolor = img.getColor(0, 0, 255);
+  }
+
+  img.BitmapFont drawfonts = img.arial_14;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
+
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  
+  List<int> lints = [1,2,4,8,16,32,64,height*width];
+
+   for (int o = 0; o < lints.length; o++) {
+     img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+     img.fill(imageg, fillcolor); 
+
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        //get pixle colors
+
+        int red = photodata[i * width + j] & 0xff;
+        int green = (photodata[i * width + j] >> 8) & 0xff;
+        int blue = (photodata[i * width + j] >> 16) & 0xff;
+        int alpha = (photodata[i * width + j] >> 24) & 0xff;
+
+        //cal avg
+        double avg = (blue + red + green ) / 3;
+
+        var k = gscale[((avg * gscalelen) / 255).round()];
+       if (i % lints[o] == 0 && j % lints[o] == 0){
+        img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
+            color: photodata[i * width + j]);  }
+            
+            }}  
+
+         File('sframes/frame${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+      fconter += 1;
+   }
+
+
+}
+
+
 Future<void> main(List<String> arguments) async {
 
   print(arguments);
@@ -991,7 +1177,7 @@ Future<void> main(List<String> arguments) async {
   double _valuecom = 0.25;
 
   double _valueblur = 0.0;
-  bool qouting = false;
+  bool qouting = true;
   Map<String, bool> filtersmap = {
     'Grey scale': false,
     'Normal colors': false,
@@ -1023,8 +1209,8 @@ Future<void> main(List<String> arguments) async {
   // };
 
   Map<String, bool> brcmap = {
-    'white': true,
-    'black': false,
+    'white': false,
+    'black': true,
   };
 
   Map<String, bool> fontmap = {'14 px': true, '24 px': false};
@@ -1071,7 +1257,8 @@ Future<void> main(List<String> arguments) async {
 
             var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
                 filtersmap, brcmap, fontmap, symbolsmap, counter,qouting);
-            photohash(imgfobj);
+            // photohash(imgfobj);
+            fadeframes(imgfobj);
             // cmatrixframscolor(imgfobj);
                       // var imgfobjtxt =  Imgfilterobjtxt(imagebytes!, columns!, symbolsmap);
 
