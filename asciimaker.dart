@@ -11,6 +11,7 @@ class Imgfilterobj {
   final String gscale2 = '@%#*+=-:. ';
 
   final String gscale3 = "BWMoahkbdpqwmZOQLCJUYXzcvunxrjftilI ";
+
   final List<int> rainbow = [
     0X00d30094,
     0X0082004b,
@@ -41,9 +42,10 @@ class Imgfilterobj {
   Map<String, bool>? fonts;
   Map<String, bool>? symbols;
   int? c;
+  bool? q;
 
   Imgfilterobj(this.bytes, double _vacom, double _vablur, this.filters,
-      this.brc, this.fonts, this.symbols, this.c) {
+      this.brc, this.fonts, this.symbols, this.c,this.q) {
     this._vacom = _vacom;
     this._vablur = _vablur;
   }
@@ -189,6 +191,66 @@ void photohash(Imgfilterobj imgfobj) {
   img.Image imageg = img.Image(width * fontindex, height * fontindex);
 
   img.fill(imageg, fillcolor);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if(imgfobj.q! == true){
+
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) { 
+           
+             var g = Random(i * j); 
+             
+
+        int index =  g.nextInt(37) ;
+        print(index);
+
+        if ( index > 32 ){
+           
+          index = index - 32 ;
+
+          img.drawLine(imageg, j * fontindex  , i * fontindex - 6 
+        , j * fontindex + index * 13  , i * fontindex - 6,
+         imgfobj.rainbow[g.nextInt(7)] ^ 0xff000000 , thickness: 13);
+
+        }
+        
+
+      }
+      }
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   //
   //
@@ -926,15 +988,15 @@ Future<void> main(List<String> arguments) async {
   print(arguments);
   int counter = 1;
 
-  double _valuecom = 0.15;
+  double _valuecom = 0.25;
 
   double _valueblur = 0.0;
-
+  bool qouting = false;
   Map<String, bool> filtersmap = {
     'Grey scale': false,
     'Normal colors': false,
     'sepia': false,
-    'terminal green text': false,
+    'terminal green text': true,
     'photo hash 1': false,
     'photo hash 2': false,
     'photo hash 3': false,
@@ -950,7 +1012,7 @@ Future<void> main(List<String> arguments) async {
     'Rainbow Random':false,
     'Random colors':false,
     'cmatrix':false,
-    'cmatrix full colors': true
+    'cmatrix full colors': false
 
     
   };
@@ -961,8 +1023,8 @@ Future<void> main(List<String> arguments) async {
   // };
 
   Map<String, bool> brcmap = {
-    'white': false,
-    'black': true,
+    'white': true,
+    'black': false,
   };
 
   Map<String, bool> fontmap = {'14 px': true, '24 px': false};
@@ -1008,9 +1070,9 @@ Future<void> main(List<String> arguments) async {
       //       symbolsmap[keyss[k]] = true;
 
             var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
-                filtersmap, brcmap, fontmap, symbolsmap, counter);
-            // photohash(imgfobj);
-            cmatrixframscolor(imgfobj);
+                filtersmap, brcmap, fontmap, symbolsmap, counter,qouting);
+            photohash(imgfobj);
+            // cmatrixframscolor(imgfobj);
                       // var imgfobjtxt =  Imgfilterobjtxt(imagebytes!, columns!, symbolsmap);
 
      
