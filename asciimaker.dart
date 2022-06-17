@@ -947,7 +947,7 @@ void randomcolorsgif(Imgfilterobj imgfobj) {
   int fconter = 0;
   img.Image? photo;
 
-  final folderName = "Random";
+  final folderName = "gifout";
   final path = Directory("$folderName");
   path.create();
 
@@ -957,7 +957,7 @@ void randomcolorsgif(Imgfilterobj imgfobj) {
 
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: ((width * imgfobj._vacom!).round()));
+  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
 
   height = photo.height;
 
@@ -1003,51 +1003,418 @@ void randomcolorsgif(Imgfilterobj imgfobj) {
     gscalelen = gscale.length - 1;
   }
 
-  var g1 = Random();
-  var g2 = Random();
-  var gife = GifEncoder(delay: 30);
-  for (int o = 0; o < 30; o++) {
+  img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+  img.fill(imageg, fillcolor);
+
+  List<List<List<int>>> matrix = [];
+
+  var g = Random(56);
+
+  int index = g.nextInt(21) + 20;
+
+  bool visable = true;
+
+  var color = 0X0026F64A;
+
+  for (int i = 0; i < width; i++) {
+    List<List<int>> line = [];
+
+    for (int j = 0; j < height; j++) {
+      //get pixle colors
+
+      int red = photodata[j * width + i] & 0xff;
+      int green = (photodata[j * width + i] >> 8) & 0xff;
+      int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green) / 3;
+
+      var k = gscale[((avg * gscalelen) / 255).round()];
+
+      var color = 0X00000000 |
+          g.nextInt(256) |
+          (g.nextInt(256)) << 8 |
+          (g.nextInt(256) << 16);
+
+      int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+      // print(alpha);
+      // print(((color | alpha) >> 24) << 24);
+
+      line.add([color | alpha, ((avg * gscalelen) / 255).round()]);
+    }
+    matrix.add(line);
+  }
+
+  // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+  // fconter += 1;
+  var gife = GifEncoder(delay: 7);
+
+  for (int o = 0; o < height; o++) {
     img.Image imageg = img.Image(width * fontindex, height * fontindex);
-    var g = Random();
-    List<List<int>> per = [];
 
     img.fill(imageg, fillcolor);
 
+    for (int i = 0; i < width; i++) {
+      var tem = matrix[i][0][0];
+
+      matrix[i][0][0] = matrix[i][height - 1][0];
+
+      for (int j = height - 1; j > 1; j--) {
+        matrix[i][j][0] = matrix[i][j - 1][0];
+      }
+
+      matrix[i][1][0] = tem;
+    }
+
     for (int i = 0; i < height; i++) {
-      for (int j = 0; j < width; j++) {
+      var tem = matrix[0][i][0];
+
+      matrix[0][i][0] = matrix[width - 1][i][0];
+
+      for (int j = width - 1; j > 1; j--) {
+        matrix[j][i][0] = matrix[j - 1][i][0];
+      }
+
+      matrix[1][i][0] = tem;
+    }
+
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < height; j++) {
         //get pixle colors
 
-        int red = photodata[i * width + j] & 0xff;
-        int green = (photodata[i * width + j] >> 8) & 0xff;
-        int blue = (photodata[i * width + j] >> 16) & 0xff;
-        int alpha = (((photodata[i * width + j] >> 24) & 0xff) << 24);
-        double avg = (blue + red + green) / 3;
+        var k = gscale[matrix[i][j][1]];
+        int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
 
-        var k = gscale[((avg * gscalelen) / 255).round()];
-
-        var color = 0X00000000;
-        if (g1.nextInt(7) < 6) {
-          img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
-              color: photodata[i * width + j]);
-        } else {
-          color = 0X00000000 |
-              g2.nextInt(256) |
-              (g2.nextInt(256)) << 8 |
-              (g2.nextInt(256) << 16);
-          img.drawString(imageg, drawfonts, j * fontindex, i * fontindex, k,
-              color: color ^ alpha);
-          per.add([i, j]);
-        }
-
-        //cal avg
-
+        img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+            color: matrix[i][j][0]);
       }
     }
 
     gife.addFrame(imageg);
   }
   File('$folderName/gif${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+
+  //  print(matrix[0].last[0]);
 }
+
+void rainbowgif(Imgfilterobj imgfobj) {
+  int fconter = 0;
+  img.Image? photo;
+
+  final folderName = "gifout";
+  final path = Directory("$folderName");
+  path.create();
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  if (imgfobj.brc!['black'] == true) {
+    fillcolor = img.getColor(0, 0, 0);
+  } else if (imgfobj.brc!['red'] == true) {
+    fillcolor = img.getColor(255, 0, 0);
+  } else if (imgfobj.brc!['green'] == true) {
+    fillcolor = img.getColor(0, 255, 0);
+  } else if (imgfobj.brc!['blue'] == true) {
+    fillcolor = img.getColor(0, 0, 255);
+  }
+
+  img.BitmapFont drawfonts = img.arial_14;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
+
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+  img.fill(imageg, fillcolor);
+
+  List<List<List<int>>> matrix = [];
+
+  var g = Random(56);
+
+  int index = g.nextInt(21) + 20;
+
+  bool visable = true;
+
+  var color = 0X0026F64A;
+
+  for (int i = 0; i < width; i++) {
+    List<List<int>> line = [];
+
+    for (int j = 0; j < height; j++) {
+      //get pixle colors
+
+      int red = photodata[j * width + i] & 0xff;
+      int green = (photodata[j * width + i] >> 8) & 0xff;
+      int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green) / 3;
+
+      var k = gscale[((avg * gscalelen) / 255).round()];
+
+      var color = 0X00000000 |
+          g.nextInt(256) |
+          (g.nextInt(256)) << 8 |
+          (g.nextInt(256) << 16);
+
+      int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+      // print(alpha);
+      // print(((color | alpha) >> 24) << 24);
+
+      line.add([
+        imgfobj.rainbow[j ~/ (height / 7)] ^ alpha,
+        ((avg * gscalelen) / 255).round()
+      ]);
+    }
+    matrix.add(line);
+  }
+
+  // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+  // fconter += 1;
+  var gife = GifEncoder(delay: 7);
+
+  for (int o = 0; o < height; o++) {
+    img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+    img.fill(imageg, fillcolor);
+
+    for (int i = 0; i < width; i++) {
+      var tem = matrix[i][0][0];
+
+      matrix[i][0][0] = matrix[i][height - 1][0];
+
+      for (int j = height - 1; j > 1; j--) {
+        matrix[i][j][0] = matrix[i][j - 1][0];
+      }
+
+      matrix[i][1][0] = tem;
+    }
+
+    for (int i = 0; i < height; i++) {
+      var tem = matrix[0][i][0];
+
+      matrix[0][i][0] = matrix[width - 1][i][0];
+
+      for (int j = width - 1; j > 1; j--) {
+        matrix[j][i][0] = matrix[j - 1][i][0];
+      }
+
+      matrix[1][i][0] = tem;
+    }
+
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < height; j++) {
+        //get pixle colors
+
+        var k = gscale[matrix[i][j][1]];
+        int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+        img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+            color: matrix[i][j][0]);
+      }
+    }
+
+    gife.addFrame(imageg);
+  }
+  File('$folderName/gif${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+
+  //  print(matrix[0].last[0]);
+}
+
+
+void rainbowgifls(Imgfilterobj imgfobj) {
+  int fconter = 0;
+  img.Image? photo;
+
+  final folderName = "gifout";
+  final path = Directory("$folderName");
+  path.create();
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  if (imgfobj.brc!['black'] == true) {
+    fillcolor = img.getColor(0, 0, 0);
+  } else if (imgfobj.brc!['red'] == true) {
+    fillcolor = img.getColor(255, 0, 0);
+  } else if (imgfobj.brc!['green'] == true) {
+    fillcolor = img.getColor(0, 255, 0);
+  } else if (imgfobj.brc!['blue'] == true) {
+    fillcolor = img.getColor(0, 0, 255);
+  }
+
+  img.BitmapFont drawfonts = img.arial_14;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
+
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+  img.fill(imageg, fillcolor);
+
+  List<List<List<int>>> matrix = [];
+
+  var g = Random(56);
+
+  int index = g.nextInt(21) + 20;
+
+  bool visable = true;
+
+  var color = 0X0026F64A;
+
+  for (int i = 0; i < width; i++) {
+    List<List<int>> line = [];
+
+    for (int j = 0; j < height; j++) {
+      //get pixle colors
+
+      int red = photodata[j * width + i] & 0xff;
+      int green = (photodata[j * width + i] >> 8) & 0xff;
+      int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green) / 3;
+
+      var k = gscale[((avg * gscalelen) / 255).round()];
+
+      var color = 0X00000000 |
+          g.nextInt(256) |
+          (g.nextInt(256)) << 8 |
+          (g.nextInt(256) << 16);
+
+      int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+      // print(alpha);
+      // print(((color | alpha) >> 24) << 24);
+
+      line.add([
+        imgfobj.rainbow[j ~/ (height / 7)] ^ alpha,
+        ((avg * gscalelen) / 255).round()
+      ]);
+    }
+    matrix.add(line);
+  }
+
+  // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+  // fconter += 1;
+  var gife = GifEncoder(delay: 7);
+
+  for (int o = 0; o < height; o++) {
+    img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+    img.fill(imageg, fillcolor);
+
+    for (int i = 0; i < width; i++) {
+      var tem = matrix[i][0][0];
+
+      matrix[i][0][0] = matrix[i][height - 1][0];
+
+      for (int j = height - 1; j > 1; j--) {
+        matrix[i][j][0] = matrix[i][j - 1][0];
+      }
+
+      matrix[i][1][0] = tem;
+    }
+
+    for (int i = 0; i < height; i++) {
+      var tem = matrix[0][i][0];
+
+      matrix[0][i][0] = matrix[width - 1][i][0];
+
+      for (int j = width - 1; j > 1; j--) {
+        matrix[j][i][0] = matrix[j - 1][i][0];
+      }
+
+      matrix[1][i][0] = tem;
+    }
+
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < height; j++) {
+        //get pixle colors
+
+        var k = gscale[matrix[i][j][1]];
+        int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+        img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+            color: matrix[i][j][0]);
+      }
+    }
+
+    gife.addFrame(imageg);
+  }
+  File('$folderName/gif${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+
+  //  print(matrix[0].last[0]);
+}
+
 
 void shiftframes(Imgfilterobj imgfobj) {
   final folderName = "shift${imgfobj.c}";
@@ -1145,7 +1512,7 @@ void shiftframes(Imgfilterobj imgfobj) {
 
 Future<void> main(List<String> arguments) async {
   print(arguments);
-  int counter = 10;
+  int counter = 15;
 
   double _valuecom = 0.25;
 
@@ -1187,7 +1554,7 @@ Future<void> main(List<String> arguments) async {
   Map<String, bool> fontmap = {'14 px': true, '24 px': false};
 
   Map<String, bool> symbolsmap = {
-    'letters and symbols': true,
+    'letters and symbols': false,
     'only symbols': false,
     'only letters': false
   };
@@ -1232,7 +1599,8 @@ Future<void> main(List<String> arguments) async {
       // fadeframes(imgfobj);
       // shiftframes(imgfobj);
       // cmatrixframscolor(imgfobj);
-      randomcolorsgif(imgfobj);
+       randomcolorsgif(imgfobj);
+      // rainbowgif(imgfobj);
       // var imgfobjtxt =  Imgfilterobjtxt(imagebytes!, columns!, symbolsmap);
 
       //      photohashtxt(imgfobjtxt);
