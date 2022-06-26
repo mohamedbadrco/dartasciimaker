@@ -56,14 +56,16 @@ class Imgfilterobjtxt {
   final String gscale1 =
       "\$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
 
-  final String gscale2 = '@%#*+=-:. ';
+
+  final String gscale2 = '@%# += :. ';
 
   final String gscale3 = "BWMoahkbdpqwmZOQLCJUYXzcvunxrjftilI ";
   Uint8List? bytes;
   Map<String, bool>? symbols;
   int clos = 100;
+  int? c;
 
-  Imgfilterobjtxt(this.bytes, this.clos, this.symbols) {
+  Imgfilterobjtxt(this.bytes, this.clos, this.symbols, this.c) {
     // Ignored
   }
 }
@@ -109,7 +111,7 @@ Future<void> photohashtxt(Imgfilterobjtxt imgfobjtxt) async {
       int alpha = (photodata[i * width + j] >> 24) & 0xff;
 
       //cal avg
-      double avg = (blue + red + green + alpha) / 4;
+      double avg = (blue + red + green) / 3;
 
       String k = gscale[((avg * gscalelen) / 255).round()];
       row = row + k;
@@ -121,11 +123,11 @@ Future<void> photohashtxt(Imgfilterobjtxt imgfobjtxt) async {
 
   int lentxt = res.length;
 
-  File f = File('haha/$name.txt');
+  File f = File('haha/$name${imgfobjtxt.c}.txt');
 
   for (int i = 0; i < lentxt; i++) {
     await f.writeAsString("${res[i]} \n", mode: FileMode.append);
-    print(res[i]);
+    // print(res[i]);
   }
 }
 
@@ -160,7 +162,8 @@ void photohash(Imgfilterobj imgfobj) {
     fillcolor = img.getColor(0, 0, 255);
   }
 
-  img.BitmapFont drawfonts = img.arial_14;
+  img.BitmapFont drawfonts = img.BitmapFont.fromZip(
+      File('font/28 Days Later.ttf.zip').readAsBytesSync());
 
   int fontindex = 13;
 
@@ -696,6 +699,9 @@ void cmatrixframs(Imgfilterobj imgfobj) {
 void cmatrixframscolor(Imgfilterobj imgfobj) {
   int fconter = 0;
   img.Image? photo;
+  var font = img.BitmapFont.fromZip(
+      File('font/28 Days Later.ttf.zip').readAsBytesSync());
+  print(font);
 
   final folderName = "gifout";
   final path = Directory("$folderName");
@@ -707,7 +713,7 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
 
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
+  photo = img.copyResize(photo, width: ((width * (69 / height)).round()));
 
   height = photo.height;
 
@@ -826,6 +832,11 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
           imageg,
           img.getColor(0xff242120 & 0xff, (0xff242120 >> 8) & 0xff,
               (0xff242120 >> 16) & 0xff));
+    } else if (imgfobj.filters!['solrized'] == true) {
+      img.fill(
+          imageg,
+          img.getColor(0xffE3F6FD & 0xff, (0xffE3F6FD >> 8) & 0xff,
+              (0xffE3F6FD >> 16) & 0xff));
     } else {
       img.fill(imageg, fillcolor);
     }
@@ -851,7 +862,8 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
         if (matrix[i][j][0] != 0) {
           if (matrix[i][j][0] == 2) {
             if (imgfobj.brc!['black'] == true) {
-              if (imgfobj.filters!['Grey scale'] == true) {
+              if (imgfobj.filters!['Grey scale'] == true ||
+                  imgfobj.filters!['solrized'] == true) {
                 img.drawString(
                     imageg, drawfonts, i * fontindex, j * fontindex, k,
                     color: (0X00CBC0FF ^ alpha));
@@ -904,9 +916,11 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
               if (imgfobj.brc!['black'] == true) {
                 printcolor = 0X00ffffff;
               }
-                  
               img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
                   color: (printcolor ^ alpha));
+            } else if (imgfobj.filters!['solrized'] == true) {
+              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                  color: (0x00837B65 ^ alpha));
             }
           }
         }
@@ -1618,6 +1632,10 @@ void rainbowgifls(Imgfilterobj imgfobj) {
   }
 
   img.BitmapFont drawfonts = img.arial_14;
+  // img.BitmapFont drawfontsl = BitmapFont.fromFnt('font/matrix.fnt',Image i)
+  var fonts =
+      img.BitmapFont.fromZip(File('newFonts/matrix.zip').readAsBytesSync());
+  print(fonts);
 
   int fontindex = 13;
 
@@ -1836,12 +1854,12 @@ Future<void> main(List<String> arguments) async {
   print(arguments);
   int counter = 3010;
 
-  double _valuecom = 0.25;
+  double _valuecom = 0.15;
 
   double _valueblur = 0.0;
   bool qouting = false;
   Map<String, bool> filtersmap = {
-    'Grey scale': true,
+    'Grey scale': false,
     'Normal colors': false,
     'sepia': false,
     'terminal green text': false,
@@ -1861,15 +1879,18 @@ Future<void> main(List<String> arguments) async {
     'Random colors': false,
     'cmatrix': false,
     'cmatrix full colors': false,
-    'cmatrix modren': false
+    'cmatrix modren': false,
+    'solrized': true
   };
   Map<String, bool> filtersmap2 = {
-    // 'sepia': false,
-    // 'photo hash 2': false,
-    // 'photo hash 3': false,
+    'sepia': false,
+    'photo hash 2': false,
+    'photo hash 3': false,
     'Rainbow Random': false,
     'Random colors': false,
-    'cmatrix modren': true
+    'cmatrix modren': true,
+    'solrized': true,
+    'Grey scale': false,
   };
 
   // Map<String, bool> typemap = {
@@ -1878,18 +1899,17 @@ Future<void> main(List<String> arguments) async {
   // };
 
   Map<String, bool> brcmap = {
-    'white': true,
-    'black': false,
+    'white': false,
+    'black': true,
   };
 
   Map<String, bool> fontmap = {'14 px': true, '24 px': false};
 
   Map<String, bool> symbolsmap = {
     'letters and symbols': false,
-    'only symbols': false,
+    'only symbols': true,
     'only letters': false
   };
-  
 
   int? columns = 120;
 
@@ -1910,10 +1930,10 @@ Future<void> main(List<String> arguments) async {
       print(f);
       imagebytes = (f).readAsBytesSync();
 
-      // for (int i = 0; i < keysf.length; i++) {
-      //   filtersmap.forEach((k, v) => filtersmap[k] = false);
+      for (int i = 0; i < keysf.length; i++) {
+        filtersmap.forEach((k, v) => filtersmap[k] = false);
 
-      //   filtersmap[keysf[i]] = true;
+        filtersmap[keysf[i]] = true;
 
         //   for (int j = 0; j < keysb.length; j++) {
         //     brcmap.forEach((k, v) => brcmap[k] = false);
@@ -1930,21 +1950,22 @@ Future<void> main(List<String> arguments) async {
         // photohash(imgfobj);
         // fadeframes(imgfobj);
         // shiftframes(imgfobj);
-        cmatrixframscolor(imgfobj);
-        // randomcolorsgif(imgfobj);
+        // cmatrixframscolor(imgfobj);
+        // randomcolorsgif(imgfobj);kk
 
         // rainbowgif(imgfobj);
         // rainbowgifls(imgfobj);
         //  a(imgfobj);
         // matrixm(imgfobj);
-        // var imgfobjtxt =  Imgfilterobjtxt(imagebytes!, columns!, symbolsmap);
+        var imgfobjtxt =
+            Imgfilterobjtxt(imagebytes!, columns, symbolsmap, counter);
 
-        //      photohashtxt(imgfobjtxt);
+        photohashtxt(imgfobjtxt);
 
         counter++;
         //     }
         // }
-      // }
+      }
     }
   });
 }
