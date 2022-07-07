@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers, unused_local_variable
+
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 import 'dart:io';
@@ -56,7 +58,6 @@ class Imgfilterobjtxt {
   final String gscale1 =
       "\$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
 
-
   final String gscale2 = '@%# += :. ';
 
   final String gscale3 = "BWMoahkbdpqwmZOQLCJUYXzcvunxrjftilI ";
@@ -108,7 +109,7 @@ Future<void> photohashtxt(Imgfilterobjtxt imgfobjtxt) async {
       int red = photodata[i * width + j] & 0xff;
       int green = (photodata[i * width + j] >> 8) & 0xff;
       int blue = (photodata[i * width + j] >> 16) & 0xff;
-      int alpha = (photodata[i * width + j] >> 24) & 0xff;
+      // int alpha = (photodata[i * width + j] >> 24) & 0xff;
 
       //cal avg
       double avg = (blue + red + green) / 3;
@@ -232,7 +233,7 @@ void photohash(Imgfilterobj imgfobj) {
         int red = photodata[i * width + j] & 0xff;
         int green = (photodata[i * width + j] >> 8) & 0xff;
         int blue = (photodata[i * width + j] >> 16) & 0xff;
-        int alpha = (photodata[i * width + j] >> 24) & 0xff;
+        // int alpha = (photodata[i * width + j] >> 24) & 0xff;
 
         //cal avg
         double avg = (blue + red + green) / 3;
@@ -473,8 +474,6 @@ void photohash(Imgfilterobj imgfobj) {
 
       bool visable = true;
 
-      var color = 0X0026F64A;
-
       for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
           //get pixle colors
@@ -627,7 +626,7 @@ void cmatrixframs(Imgfilterobj imgfobj) {
         }
       }
 
-      var k = gscale[((avg * gscalelen) / 255).round()];
+      // var k = gscale[((avg * gscalelen) / 255).round()];
 
       // int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
 
@@ -689,7 +688,7 @@ void cmatrixframs(Imgfilterobj imgfobj) {
       }
     }
 
-    File('image/frame${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+    File('image/frame$fconter.png').writeAsBytesSync(img.encodePng(imageg));
     fconter += 1;
   }
 
@@ -704,7 +703,7 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
   print(font);
 
   final folderName = "gifout";
-  final path = Directory("$folderName");
+  final path = Directory(folderName);
   path.create();
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -713,7 +712,7 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
 
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: ((width * (69 / height)).round()));
+  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
 
   height = photo.height;
 
@@ -745,7 +744,7 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
     fontindex = 22;
   }
 
-  String gscale = imgfobj.gscale1;
+  String gscale = ' 10 ';
 
   int gscalelen = gscale.length - 1;
 
@@ -797,8 +796,6 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
           visable = true;
         }
       }
-
-      var k = gscale[((avg * gscalelen) / 255).round()];
 
       // int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
 
@@ -934,7 +931,234 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
   //  print(matrix[0].last[0]);
 }
 
-void fadeframes(Imgfilterobj imgfobj) {
+void c3c(Imgfilterobj imgfobj, col1, col2, col3) {
+  int fconter = 0;
+  img.Image? photo;
+  var font = img.BitmapFont.fromZip(
+      File('font/28 Days Later.ttf.zip').readAsBytesSync());
+  print(font);
+
+  final folderName = "c3cgifout";
+  final path = Directory(folderName);
+  path.create();
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  // if (imgfobj.brc!['black'] == true) {
+  //   fillcolor = img.getColor(0, 0, 0);
+  // } else if (imgfobj.brc!['red'] == true) {
+  //   fillcolor = img.getColor(255, 0, 0);
+  // } else if (imgfobj.brc!['green'] == true) {
+  //   fillcolor = img.getColor(0, 255, 0);
+  // } else if (imgfobj.brc!['blue'] == true) {
+  //   fillcolor = img.getColor(0, 0, 255);
+  // }
+  // bold bitmap font
+  img.BitmapFont drawfonts = img.arial_14;
+  var _bold = true;
+  drawfonts.bold = _bold;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+  img.fill(imageg, fillcolor);
+
+  List<List<List<int>>> matrix = [];
+
+  var g = Random(56);
+
+  int index = g.nextInt(21) + 20;
+
+  bool visable = true;
+
+  var color = 0X0026F64A;
+
+  for (int i = 0; i < width; i++) {
+    List<List<int>> line = [];
+
+    for (int j = 0; j < height; j++) {
+      //get pixle colors
+
+      int red = photodata[j * width + i] & 0xff;
+      int green = (photodata[j * width + i] >> 8) & 0xff;
+      int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green) / 3;
+
+      index = index - 1;
+
+      if (index == 0) {
+        if (visable == true) {
+          index = g.nextInt(21) + 5;
+          visable = false;
+        } else {
+          index = g.nextInt(21) + 20;
+          visable = true;
+        }
+      }
+
+      // var k = gscale[((avg * gscalelen) / 255).round()];
+
+      // int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+      if (visable == true) {
+        if (index == 1) {
+          line.add([2, ((avg * gscalelen) / 255).round()]);
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          // color: (0X00ffffff ^ alpha));
+
+        } else {
+          line.add([1, ((avg * gscalelen) / 255).round()]);
+
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          //     color: (color ^ alpha));
+        }
+      } else {
+        line.add([0, ((avg * gscalelen) / 255).round()]);
+      }
+    }
+    matrix.add(line);
+  }
+
+  // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+  // fconter += 1; 0xff242120
+  var gife = GifEncoder(delay: 7);
+  // var L = [
+  //   // 0x00FFFFFF,
+  //   // 0X00688410,
+  //   // 0x00242120,
+  //   0x00242120,
+  //   0X00567313,
+  //   0x00FFFFFF,
+  //   0x00101010,
+  //   0X00069A4E,
+  //   0x00CFD7D3,
+  //   // 0x00362B00,
+  //   // 0X00009985,
+  //   // 0x00D5E8EE
+  // ].reversed.toList();
+
+  // var L = [
+  //   0x00FFFFFF,
+  //   0X00688410,
+  //   0x00242120,
+  //   0x00F59AB3,
+  //   0x008BA0FF,
+  //   0x007B4D43,
+  //   0x00999000,
+  //   0x00362B00,
+  //   0X00009985,
+  //   0x00D5E8EE
+  // ];
+  var L = [
+    0x00FFFFFF,
+    0X00688410,
+    0x00242120,
+    0x00242120,
+    0X00567313,
+    0x00FFFFFF,
+    0x00101010,
+    0X00069A4E,
+    0x00CFD7D3,
+    0x00362B00,
+    0X00009985,
+    0x00D5E8EE,
+    0x00E3F6FD,
+    0X00009985,
+    0x00423607,
+    0x003E2722,
+    0X00EFFEE3,
+    0x007B4D43,
+    0x00431C3E,
+    0X00FAD8CD,
+    0x002E222C,
+    0x0034331F,
+    0X00B09770,
+    0x006C6B48
+  ];
+  for (int o = 0; o < height; o++) {
+    img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+    img.fill(imageg, 0xff000000 ^ col1);
+
+    for (int i = 0; i < width; i++) {
+      var tem = matrix[i][0][0];
+
+      matrix[i][0][0] = matrix[i][height - 1][0];
+
+      for (int j = height - 1; j > 1; j--) {
+        matrix[i][j][0] = matrix[i][j - 1][0];
+      }
+
+      matrix[i][1][0] = tem;
+    }
+
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < height; j++) {
+        //get pixle colors
+        var k = gscale[matrix[i][j][1]];
+        int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+        if (matrix[i][j][0] != 0) {
+          if (matrix[i][j][0] == 2) {
+            img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                color: (col3 ^ alpha));
+          } else {
+            img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                color: (L[(((((matrix[i][j][1] / gscalelen) * 255) *
+                                (L.length - 1)) /
+                            255))
+                        .round()]) ^
+                    alpha);
+          }
+        }
+      }
+    }
+    gife.addFrame(imageg);
+  }
+  File('$folderName/matrix${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+
+  //  print(matrix[0].last[0]);
+}
+
+void ff(Imgfilterobj imgfobj) {
   int fconter = 0;
   img.Image? photo;
 
@@ -1016,7 +1240,7 @@ void fadeframes(Imgfilterobj imgfobj) {
       }
     }
 
-    File('sframes/frame${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+    File('sframes/frame$fconter.png').writeAsBytesSync(img.encodePng(imageg));
     fconter += 1;
   }
 }
@@ -1026,7 +1250,7 @@ void randomcolorsgif(Imgfilterobj imgfobj) {
   img.Image? photo;
 
   final folderName = "gifout";
-  final path = Directory("$folderName");
+  final path = Directory(folderName);
   path.create();
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -1181,7 +1405,7 @@ void rainbowgif(Imgfilterobj imgfobj) {
   img.Image? photo;
 
   final folderName = "gifout";
-  final path = Directory("$folderName");
+  final path = Directory(folderName);
   path.create();
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -1339,7 +1563,7 @@ void a(Imgfilterobj imgfobj) {
   img.Image? photo;
 
   final folderName = "gifout";
-  final path = Directory("$folderName");
+  final path = Directory(folderName);
   path.create();
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -1454,7 +1678,7 @@ void matrixm(Imgfilterobj imgfobj) {
   img.Image? photo;
 
   final folderName = "gifout";
-  final path = Directory("$folderName");
+  final path = Directory(folderName);
   path.create();
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -1600,7 +1824,7 @@ void rainbowgifls(Imgfilterobj imgfobj) {
   img.Image? photo;
 
   final folderName = "gifout";
-  final path = Directory("$folderName");
+  final path = Directory(folderName);
   path.create();
 
   photo = img.decodeImage(imgfobj.bytes!);
@@ -1758,7 +1982,7 @@ void rainbowgifls(Imgfilterobj imgfobj) {
 
 void shiftframes(Imgfilterobj imgfobj) {
   final folderName = "shift${imgfobj.c}";
-  final path = Directory("$folderName");
+  final path = Directory(folderName);
   path.create();
 
   int fconter = 0;
@@ -1844,7 +2068,7 @@ void shiftframes(Imgfilterobj imgfobj) {
     rainbow.insert(0, rainbow[6]);
     rainbow.removeLast();
     print(rainbow);
-    File('${folderName}/frame${fconter}.png')
+    File('$folderName/frame$fconter.png')
         .writeAsBytesSync(img.encodePng(imageg));
     fconter += 1;
   }
@@ -1852,7 +2076,7 @@ void shiftframes(Imgfilterobj imgfobj) {
 
 Future<void> main(List<String> arguments) async {
   print(arguments);
-  int counter = 3010;
+  int counter = 51;
 
   double _valuecom = 0.15;
 
@@ -1860,7 +2084,7 @@ Future<void> main(List<String> arguments) async {
   bool qouting = false;
   Map<String, bool> filtersmap = {
     'Grey scale': false,
-    'Normal colors': false,
+    'Normal colors': true,
     'sepia': false,
     'terminal green text': false,
     'photo hash 1': false,
@@ -1880,7 +2104,7 @@ Future<void> main(List<String> arguments) async {
     'cmatrix': false,
     'cmatrix full colors': false,
     'cmatrix modren': false,
-    'solrized': true
+    'solrized': false
   };
   Map<String, bool> filtersmap2 = {
     'sepia': false,
@@ -1907,15 +2131,28 @@ Future<void> main(List<String> arguments) async {
 
   Map<String, bool> symbolsmap = {
     'letters and symbols': false,
-    'only symbols': true,
+    'only symbols': false,
     'only letters': false
   };
 
-  int? columns = 120;
+  int? columns = 150;
 
   Uint8List? imagebytes;
 
   // List<String> images = [''];
+  List<List<int>> colors = [
+    /////////////////////////////////////////
+    [0x00FFFFFF, 0X00688410, 0x00242120],
+    [0x00242120, 0X00567313, 0x00FFFFFF],
+    [0x00101010, 0X00069A4E, 0x00CFD7D3],
+    [0x00362B00, 0X00009985, 0x00D5E8EE],
+    //////////////////////////////////.////
+    [0x00E3F6FD, 0X00009985, 0x00423607],
+    [0x003E2722, 0X00EFFEE3, 0x007B4D43],
+    [0x00431C3E, 0X00FAD8CD, 0x002E222C],
+    [0x0034331F, 0X00B09770, 0x006C6B48],
+    ////////////////////////////////////
+  ];
 
   List keysf = filtersmap2.keys.toList();
 
@@ -1930,42 +2167,48 @@ Future<void> main(List<String> arguments) async {
       print(f);
       imagebytes = (f).readAsBytesSync();
 
-      for (int i = 0; i < keysf.length; i++) {
-        filtersmap.forEach((k, v) => filtersmap[k] = false);
+      // for (int i = 0; i < keysf.length; i++) {
+      //   filtersmap.forEach((k, v) => filtersmap[k] = false);
 
-        filtersmap[keysf[i]] = true;
+      //   filtersmap[keysf[i]] = true;
 
-        //   for (int j = 0; j < keysb.length; j++) {
-        //     brcmap.forEach((k, v) => brcmap[k] = false);
+      //   for (int j = 0; j < keysb.length; j++) {
+      //     brcmap.forEach((k, v) => brcmap[k] = false);
 
-        //     brcmap[keysb[j]] = true;
+      //     brcmap[keysb[j]] = true;
 
-        //     for (int k = 0; k < keyss.length; k++) {
-        //       symbolsmap.forEach((g, v) => symbolsmap[g] = false);
+      //     for (int k = 0; k < keyss.length; k++) {
+      //       symbolsmap.forEach((g, v) => symbolsmap[g] = false);
 
-        //       symbolsmap[keyss[k]] = true;
+      //       symbolsmap[keyss[k]] = true;
 
+      // var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur, filtersmap,
+      //     brcmap, fontmap, symbolsmap, counter, qouting);
+      // // photohash(imgfobj);
+      // // fadeframes(imgfobj);
+      // // shiftframes(imgfobj);
+      // cmatrixframscolor(imgfobj);
+      // randomcolorsgif(imgfobj);
+      for (int k = 0; k < colors.length; k++) {
         var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
             filtersmap, brcmap, fontmap, symbolsmap, counter, qouting);
-        // photohash(imgfobj);
-        // fadeframes(imgfobj);
-        // shiftframes(imgfobj);
-        // cmatrixframscolor(imgfobj);
-        // randomcolorsgif(imgfobj);kk
-
-        // rainbowgif(imgfobj);
-        // rainbowgifls(imgfobj);
-        //  a(imgfobj);
-        // matrixm(imgfobj);
-        var imgfobjtxt =
-            Imgfilterobjtxt(imagebytes!, columns, symbolsmap, counter);
-
-        photohashtxt(imgfobjtxt);
-
+        c3c(imgfobj, colors[k][0], colors[k][1], colors[k][2]);
         counter++;
-        //     }
-        // }
       }
+
+      // rainbowgif(imgfobj);
+      // rainbowgifls(imgfobj);
+      //  a(imgfobj);
+      // // matrixm(imgfobj);
+      //  var imgfobjtxt =
+      //      Imgfilterobjtxt(imagebytes!, columns, symbolsmap, counter);
+
+      //  photohashtxt(imgfobjtxt);
+
+      // counter++;
+      //     }
+      // }
+      // }
     }
   });
 }
