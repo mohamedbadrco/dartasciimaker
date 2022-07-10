@@ -1,11 +1,32 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers, unused_local_variable
 
+import 'package:asciimaker/asciimaker.dart';
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:image/image.dart';
+
+class Colors {
+  int black1 = rtog(0x003C4043);
+  int red1 = rtog(0x00F28B82);
+  int green1 = rtog(0x00137356);
+  int yellow1 = rtog(0x00E37400);
+  int blue1 = rtog(0x00E37400);
+  int magtena1 = rtog(0x00EE5FFA);
+  int cyan1 = rtog(0x0003BFC8);
+  int white1 = rtog(0x00FFFFFF);
+
+  int bblack1 = rtog(0x009AA0A6);
+  int bred1 = rtog(0x00F6AEA9);
+  int bgreen1 = rtog(0x0087FFC5);
+  int byellow1 = rtog(0x00FDD663);
+  int bblue1 = rtog(0x00AECBFA);
+  int bmagtena1 = rtog(0x00F4B5FB);
+  int bcyan1 = rtog(0x0080F9F9);
+  int bwhite1 = rtog(0x00F8F9FA);
+}
 
 class Imgfilterobj {
   final String gscale1 =
@@ -934,13 +955,12 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
 void c3c(Imgfilterobj imgfobj, col1, col2, col3) {
   int fconter = 0;
   img.Image? photo;
-  var font = img.BitmapFont.fromZip(
-      File('font/28 Days Later.ttf.zip').readAsBytesSync());
-  print(font);
-
+  // var font = img.BitmapFont.fromZip(
+  //     File('font/28 Days Later.ttf.zip').readAsBytesSync());
   final folderName = "c3cgifout";
   final path = Directory(folderName);
   path.create();
+  print('$folderName/matrix${imgfobj.c}.gif');
 
   photo = img.decodeImage(imgfobj.bytes!);
 
@@ -995,9 +1015,9 @@ void c3c(Imgfilterobj imgfobj, col1, col2, col3) {
     gscalelen = gscale.length - 1;
   }
 
-  img.Image imageg = img.Image(width * fontindex, height * fontindex);
+  // img.Image imageg = img.Image(width * fontindex, height * fontindex);
 
-  img.fill(imageg, fillcolor);
+  // img.fill(imageg, fillcolor);
 
   List<List<List<int>>> matrix = [];
 
@@ -1087,36 +1107,52 @@ void c3c(Imgfilterobj imgfobj, col1, col2, col3) {
   //   0X00009985,
   //   0x00D5E8EE
   // ];
+  // var L = [
+  //   0x00FFFFFF,
+  //   0X00688410,
+  //   0x00242120,
+  //   0x00242120,
+  //   0X00567313,
+  //   0x00FFFFFF,
+  //   0x00101010,
+  //   0X00069A4E,
+  //   0x00CFD7D3,
+  //   0x00362B00,
+  //   0X00009985,
+  //   0x00D5E8EE,
+  //   0x00E3F6FD,
+  //   0X00009985,
+  //   0x00423607,
+  //   0x003E2722,
+  //   0X00EFFEE3,
+  //   0x007B4D43,
+  //   0x00431C3E,
+  //   0X00FAD8CD,
+  //   0x002E222C,
+  //   0x0034331F,
+  //   0X00B09770,
+  //   0x006C6B48
+  // ];
+
+  var c = Colors();
   var L = [
-    0x00FFFFFF,
-    0X00688410,
-    0x00242120,
-    0x00242120,
-    0X00567313,
-    0x00FFFFFF,
-    0x00101010,
-    0X00069A4E,
-    0x00CFD7D3,
-    0x00362B00,
-    0X00009985,
-    0x00D5E8EE,
-    0x00E3F6FD,
-    0X00009985,
-    0x00423607,
-    0x003E2722,
-    0X00EFFEE3,
-    0x007B4D43,
-    0x00431C3E,
-    0X00FAD8CD,
-    0x002E222C,
-    0x0034331F,
-    0X00B09770,
-    0x006C6B48
+    c.bblack1,
+    c.red1,
+    c.green1,
+    c.yellow1,
+    c.blue1,
+    c.magtena1,
+    c.cyan1,
+    c.white1
   ];
   for (int o = 0; o < height; o++) {
     img.Image imageg = img.Image(width * fontindex, height * fontindex);
 
+    // img.fill(imageg, 0xffffffff);
     img.fill(imageg, 0xff000000 ^ col1);
+
+    print(((((0xff000000 ^ col1) >> 24) & 0xff) ));
+    print(((0xff000000 >> 24) & 0xff));
 
     for (int i = 0; i < width; i++) {
       var tem = matrix[i][0][0];
@@ -2076,7 +2112,7 @@ void shiftframes(Imgfilterobj imgfobj) {
 
 Future<void> main(List<String> arguments) async {
   print(arguments);
-  int counter = 51;
+  int counter = 8080;
 
   double _valuecom = 0.15;
 
@@ -2142,7 +2178,7 @@ Future<void> main(List<String> arguments) async {
   // List<String> images = [''];
   List<List<int>> colors = [
     /////////////////////////////////////////
-    [0x00FFFFFF, 0X00688410, 0x00242120],
+    // [0x00FFFFFF, 0X00688410, 0x00242120],
     [0x00242120, 0X00567313, 0x00FFFFFF],
     [0x00101010, 0X00069A4E, 0x00CFD7D3],
     [0x00362B00, 0X00009985, 0x00D5E8EE],
@@ -2150,7 +2186,7 @@ Future<void> main(List<String> arguments) async {
     [0x00E3F6FD, 0X00009985, 0x00423607],
     [0x003E2722, 0X00EFFEE3, 0x007B4D43],
     [0x00431C3E, 0X00FAD8CD, 0x002E222C],
-    [0x0034331F, 0X00B09770, 0x006C6B48],
+    [0x0034331F, 0X00B09770, 0x00242120],
     ////////////////////////////////////
   ];
 
