@@ -53,8 +53,10 @@ class Imgfilterobj {
   final String gscale1s =
       "\$@ß%8&WM#*ö	õäåhkbdpqwmZÖØ0QLÇJÜÝXzçvünxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
   final String gscale1s2 = "ßöõäåÖØÇJÜÝçü ";
+  final String gscale1s3 =
+      "ABCČĆDĐEFGHIJKLMNOPQRSŠTUVWXYZŽabcčćdđefghijklmnopqrsštuvwxyzžАБВГҐДЂЕЁЄЖЗЅИІЇЙЈКЛЉМНЊОПРСТЋУЎФХЦЧЏШЩЪЫЬЭЮЯабвгґдђеёєжзѕиіїйјклљмнњопрстћуўфхцчџшщъыьэюяΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψωάΆέΈέΉίϊΐΊόΌύΰϋΎΫάέίόύΏĂÂÊÔƠƯăâêôơư1234567890‘?’“!”(%)[#]{@}/&\\<-+÷×=>®©\$€£¥¢:;,.*";
 
-  final String gscale2 = '@%#*+=-:. ';
+  final String gscale2 = '#*+=-:';
 
   final String gscale3 = "BWMoahkbdpqwmZOQLCJUYXzcvnxrjftilI ";
 
@@ -738,12 +740,9 @@ void cmatrixframs(Imgfilterobj imgfobj) {
   //  print(matrix[0].last[0]);
 }
 
-void cmatrixframscolor(Imgfilterobj imgfobj) {
+void cmatrixngtive(Imgfilterobj imgfobj) {
   int fconter = 0;
   img.Image? photo;
-  var font = img.BitmapFont.fromZip(
-      File('font/28 Days Later.ttf.zip').readAsBytesSync());
-  print(font);
 
   final folderName = "gifout";
   final path = Directory(folderName);
@@ -755,7 +754,7 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
 
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
+  photo = img.copyResize(photo, width: ((width * imgfobj._vacom!).round()));
 
   height = photo.height;
 
@@ -787,7 +786,205 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
     fontindex = 22;
   }
 
-  String gscale = ' 10 ';
+  String gscale = imgfobj.gscale1;
+
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+  img.fill(imageg, fillcolor);
+
+  List<List<List<int>>> matrix = [];
+
+  var g = Random(56);
+
+  int index = g.nextInt(21) + 20;
+
+  bool visable = true;
+
+  var color = 0X00C5FF87;
+
+  for (int i = 0; i < width; i++) {
+    List<List<int>> line = [];
+    line.add([1, index]);
+
+    for (int j = 0; j < height; j++) {
+      //get pixle colors
+
+      int red = photodata[j * width + i] & 0xff;
+      int green = (photodata[j * width + i] >> 8) & 0xff;
+      int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green) / 3;
+
+      index = index - 1;
+
+      if (index == 0) {
+        if (visable == true) {
+          index = g.nextInt(21) + 2;
+          visable = false;
+        } else {
+          index = g.nextInt(21) + 20;
+          visable = true;
+        }
+      }
+
+      // var k = gscale[((avg * gscalelen) / 255).round()];
+
+      // int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+      if (visable == true) {
+        if (index == 1) {
+          line.add([2, ((avg * gscalelen) / 255).round()]);
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          // color: (0X00ffffff ^ alpha));
+
+        } else {
+          line.add([1, ((avg * gscalelen) / 255).round()]);
+
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          //     color: (color ^ alpha));
+        }
+      } else {
+        line.add([0, ((avg * gscalelen) / 255).round()]);
+      }
+    }
+    matrix.add(line);
+  }
+  var color2 = 0x00ff0000;
+
+  // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+  // fconter += 1;
+  var gife = GifEncoder(delay: 7);
+
+  for (int o = 0; o < height; o++) {
+    img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+    img.fill(imageg, fillcolor);
+
+    for (int i = 0; i < width; i++) {
+      var tem = matrix[i][0][0];
+
+      matrix[i][0][0] = matrix[i][height - 1][0];
+
+      for (int j = height - 1; j > 1; j--) {
+        matrix[i][j][0] = matrix[i][j - 1][0];
+      }
+
+      matrix[i][1][0] = tem;
+    }
+
+    int red = color & 0xff;
+    int green = (color >> 8) & 0xff;
+    int blue = (color >> 16) & 0xff;
+
+    int nred = color2 & 0xff;
+    int ngreen = (color2 >> 8) & 0xff;
+    int nblue = (color2 >> 16) & 0xff;
+
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < height; j++) {
+        var color1 = 0x00000000;
+        //get pixle colors
+
+        if (o <= (height / 2)) {
+          double per = o / (height / 2);
+          color1 = 0x00000000 |
+              red + ((red - nred) * per).round() |
+              (green + ((green - ngreen) * per).round()) << 8 |
+              (blue + ((blue - nblue) * per).round()) << 16;
+        }
+        if (o > (height / 2)) {
+          double per = (height - o - 1) / (height / 2);
+          color1 = 0x00000000 |
+              red + ((red - nred) * per).round() |
+              (green + ((green - ngreen) * per).round()) << 8 |
+              (blue + ((blue - nblue) * per).round()) << 16;
+        }
+
+        var k = gscale[matrix[i][j][1]];
+        int alpha = (((photodata[j * width + i] >> 24)) << 24);
+
+        if (matrix[i][j][0] != 0) {
+          if (matrix[i][j][0] == 2) {
+            img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                color: (0X00ffffff | alpha));
+          } else {
+            img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                color: (color1 | alpha));
+          }
+        }
+      }
+    }
+
+    gife.addFrame(imageg);
+    File('haha/frame$fconter.png').writeAsBytesSync(img.encodePng(imageg));
+    fconter += 1;
+  }
+  File('$folderName/gif${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+}
+
+void cmatrixframscolor(Imgfilterobj imgfobj) {
+  int fconter = 0;
+  img.Image? photo;
+  var font = img.BitmapFont.fromZip(
+      File('font/28 Days Later.ttf.zip').readAsBytesSync());
+  print(font);
+
+  final folderName = "gifout";
+  final path = Directory(folderName);
+  path.create();
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * (100 / height)).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  if (imgfobj.brc!['black'] == true) {
+    fillcolor = img.getColor(0, 0, 0);
+  } else if (imgfobj.brc!['red'] == true) {
+    fillcolor = img.getColor(255, 0, 0);
+  } else if (imgfobj.brc!['green'] == true) {
+    fillcolor = img.getColor(0, 255, 0);
+  } else if (imgfobj.brc!['blue'] == true) {
+    fillcolor = img.getColor(0, 0, 255);
+  }
+
+  img.BitmapFont drawfonts = img.arial_14;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
 
   int gscalelen = gscale.length - 1;
 
@@ -863,7 +1060,8 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
 
   // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
   // fconter += 1; 0xff242120
-  var gife = GifEncoder(delay: 7);
+  var gife = GifEncoder(delay: 7, samplingFactor: 100);
+  gife.ditherSerpentine = true;
 
   for (int o = 0; o < height; o++) {
     img.Image imageg = img.Image(width * fontindex, height * fontindex);
@@ -919,7 +1117,7 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
           } else {
             if (imgfobj.filters!['Normal colors'] == true) {
               img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
-                  color: ~photodata[j * width + i]);
+                  color: photodata[j * width + i]);
             } else if (imgfobj.filters!['sepia'] == true) {
               photo = img.sepia(photo!, amount: 1);
               photodata = photo.data;
@@ -937,20 +1135,6 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
                   color: (rainbow0[
                           ((((matrix[i][j][1] / gscalelen)) * 6)).round()]) ^
                       alpha);
-            } else if (imgfobj.filters!['cmatrix modren'] == true) {
-              color = 0X00C5FF87;
-              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
-                  color: color ^ alpha);
-            } else if (imgfobj.filters!['Rainbow Random'] == true) {
-              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
-                  color: (imgfobj.rainbow[g.nextInt(7)] ^ alpha));
-            } else if (imgfobj.filters!['Random colors'] == true) {
-              var color = 0X00000000 |
-                  g.nextInt(256) |
-                  (g.nextInt(256)) << 8 |
-                  (g.nextInt(256) << 16);
-              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
-                  color: color ^ alpha);
             } else if (imgfobj.filters!['Grey scale'] == true) {
               var printcolor = 0X00000000;
               if (imgfobj.brc!['black'] == true) {
@@ -969,7 +1153,11 @@ void cmatrixframscolor(Imgfilterobj imgfobj) {
 
     gife.addFrame(imageg);
   }
+  File fl = File('commands.txt');
   File('$folderName/gif${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+  fl.writeAsStringSync(
+      "gifsicle matrix${imgfobj.c}.gif -o matrix${imgfobj.c}.gif --optimize --colors 25 \n",
+      mode: FileMode.append);
 
   //  print(matrix[0].last[0]);
 }
@@ -996,7 +1184,7 @@ void c3c(Imgfilterobj imgfobj, int col1, int col2, int col3) {
   //     File('font/Ultra-Regular.ttf.zip').readAsBytesSync());
 
   // var fonts = [font1, font2, font3, font4, font5, font6];
-  final folderName = "c3cgifout";
+  final folderName = "gifout";
   final path = Directory(folderName);
   path.create();
   print('$folderName/matrix${imgfobj.c}.gif');
@@ -1007,7 +1195,7 @@ void c3c(Imgfilterobj imgfobj, int col1, int col2, int col3) {
   int ct = 0;
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
+  photo = img.copyResize(photo, width: ((width * (70 / height)).round()));
 
   height = photo.height;
 
@@ -1119,7 +1307,9 @@ void c3c(Imgfilterobj imgfobj, int col1, int col2, int col3) {
 
   // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
   // fconter += 1; 0xff242120
-  var gife = GifEncoder(delay: 7, samplingFactor: 1);
+  var gife = GifEncoder(delay: 7, samplingFactor: 100);
+  gife.ditherSerpentine = true;
+  // var gife2 = GifEncoder(delay: 7, samplingFactor: 100);
   // var L = [
   //   // 0x00FFFFFF,
   //   // 0X00688410,
@@ -1185,16 +1375,21 @@ void c3c(Imgfilterobj imgfobj, int col1, int col2, int col3) {
   //   c.cyan1,
   //   c.white1
   // ];
-  var L = [
-    c.black2,
-    c.red2,
-    c.green2,
-    c.yellow2,
-    c.blue2,
-    c.magtena2,
-    c.cyan2,
-    c.white2
-  ];
+  // var L = [
+  //   c.black2,
+  //   c.red2,
+  //   c.green2,
+  //   c.yellow2,
+  //   c.blue2,
+  //   c.magtena2,
+  //   c.cyan2,
+  //   c.white2
+  // ];
+  // L[(((((matrix[i][j][1] / gscalelen) * 255) *
+  //                               (L.length - 1)) /
+  //                           255))
+  //                       .round()]) ^
+  //                   alpha
   // for (int p = 0; p < fonts.length; p++) {
   //   drawfonts = fonts[p];
   for (int o = 0; o < height; o++) {
@@ -1227,24 +1422,626 @@ void c3c(Imgfilterobj imgfobj, int col1, int col2, int col3) {
                 color: (col3 ^ alpha));
           } else {
             img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
-                color: (L[(((((matrix[i][j][1] / gscalelen) * 255) *
-                                (L.length - 1)) /
-                            255))
-                        .round()]) ^
-                    alpha);
+                color: (col2 ^ alpha));
           }
         }
       }
     }
 
-    var o = img.decodeImage(img.encodeJpg(imageg));
+    var o = img.decodeImage(img.encodePng(imageg));
+
     gife.addFrame(o!);
 
-    gife.ditherSerpentine = true;
+    // gife2.addFrame(imageg);
+
     // File('$folderName/f$ct.png').writeAsBytesSync(img.encodePng(imageg));
     // ct += 1;
   }
-  File('$folderName/matrix${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+  var ff = gife.finish()!;
+  File fl = File('commands.txt');
+  File('$folderName/matrix${imgfobj.c}.gif').writeAsBytesSync(ff);
+  fl.writeAsStringSync(
+      "gifsicle matrix${imgfobj.c}.gif -o matrix${imgfobj.c}.gif --optimize --colors 20 \n",
+      mode: FileMode.append);
+
+  // File('$folderName/matrix${imgfobj.c}-2.png').writeAsBytesSync(ff);
+  // }
+
+  //  print(matrix[0].last[0]);
+}
+
+void cb(Imgfilterobj imgfobj, int col1) {
+  int fconter = 0;
+  img.Image? photo;
+  var font1 = img.BitmapFont.fromZip(
+      File('font/Audiowide-Regular.ttf (1).zip').readAsBytesSync());
+
+  // var font2 = img.BitmapFont.fromZip(
+  //     File('font/Pacifico-Regular.ttf (1).zip').readAsBytesSync());
+
+  // var font3 = img.BitmapFont.fromZip(
+  //     File('font/EduVICWANTBeginner-Bold.ttf (1).zip').readAsBytesSync());
+
+  // var font4 = img.BitmapFont.fromZip(
+  //     File('font/RubikMoonrocks-Regular.ttf (1).zip').readAsBytesSync());
+
+  // var font5 = img.BitmapFont.fromZip(
+  //     File('font/PressStart2P-Regular.ttf.zip').readAsBytesSync());
+
+  // var font6 = img.BitmapFont.fromZip(
+  //     File('font/Ultra-Regular.ttf.zip').readAsBytesSync());
+
+  // var fonts = [font1, font2, font3, font4, font5, font6];
+  final folderName = "gifout";
+  final path = Directory(folderName);
+  path.create();
+  print('$folderName/matrix${imgfobj.c}.gif');
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+  int ct = 0;
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * (70 / height)).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  // if (imgfobj.brc!['black'] == true) {
+  //   fillcolor = img.getColor(0, 0, 0);
+  // } else if (imgfobj.brc!['red'] == true) {
+  //   fillcolor = img.getColor(255, 0, 0);
+  // } else if (imgfobj.brc!['green'] == true) {
+  //   fillcolor = img.getColor(0, 255, 0);
+  // } else if (imgfobj.brc!['blue'] == true) {
+  //   fillcolor = img.getColor(0, 0, 255);
+  // }
+  // bold bitmap font
+  img.arial_14.bold = true;
+  img.BitmapFont drawfonts = font1;
+  var _bold = true;
+  drawfonts.bold = _bold;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  // img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+  // img.fill(imageg, fillcolor);
+
+  List<List<List<int>>> matrix = [];
+
+  var g = Random(56);
+
+  int index = g.nextInt(21) + 20;
+
+  bool visable = true;
+
+  var color = 0X0026F64A;
+
+  for (int i = 0; i < width; i++) {
+    List<List<int>> line = [];
+
+    for (int j = 0; j < height; j++) {
+      //get pixle colors
+
+      int red = photodata[j * width + i] & 0xff;
+      int green = (photodata[j * width + i] >> 8) & 0xff;
+      int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green) / 3;
+
+      index = index - 1;
+
+      if (index == 0) {
+        if (visable == true) {
+          index = g.nextInt(21) + 5;
+          visable = false;
+        } else {
+          index = g.nextInt(21) + 20;
+          visable = true;
+        }
+      }
+
+      // var k = gscale[((avg * gscalelen) / 255).round()];
+
+      // int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+      if (visable == true) {
+        if (index == 1) {
+          line.add([2, ((avg * gscalelen) / 255).round()]);
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          // color: (0X00ffffff ^ alpha));
+
+        } else {
+          line.add([1, ((avg * gscalelen) / 255).round()]);
+
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          //     color: (color ^ alpha));
+        }
+      } else {
+        line.add([0, ((avg * gscalelen) / 255).round()]);
+      }
+    }
+    matrix.add(line);
+  }
+
+  // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+  // fconter += 1; 0xff242120
+  var gife = GifEncoder(delay: 7, samplingFactor: 100);
+  gife.ditherSerpentine = true;
+  // var gife2 = GifEncoder(delay: 7, samplingFactor: 100);
+  // var L = [
+  //   // 0x00FFFFFF,
+  //   // 0X00688410,
+  //   // 0x00242120,
+  //   0x00242120,
+  //   0X00567313,
+  //   0x00FFFFFF,
+  //   0x00101010,
+  //   0X00069A4E,
+  //   0x00CFD7D3,
+  //   // 0x00362B00,
+  //   // 0X00009985,
+  //   // 0x00D5E8EE
+  // ].reversed.toList();
+
+  // var L = [
+  //   0x00FFFFFF,
+  //   0X00688410,
+  //   0x00242120,
+  //   0x00F59AB3,
+  //   0x008BA0FF,
+  //   0x007B4D43,
+  //   0x00999000,
+  //   0x00362B00,
+  //   0X00009985,
+  //   0x00D5E8EE
+  // ];
+  // var L = [
+  //   0x00FFFFFF,
+  //   0X00688410,
+  //   0x00242120,
+  //   0x00242120,
+  //   0X00567313,
+  //   0x00FFFFFF,
+  //   0x00101010,
+  //   0X00069A4E,
+  //   0x00CFD7D3,
+  //   0x00362B00,
+  //   0X00009985,
+  //   0x00D5E8EE,
+  //   0x00E3F6FD,
+  //   0X00009985,
+  //   0x00423607,
+  //   0x003E2722,
+  //   0X00EFFEE3,
+  //   0x007B4D43,
+  //   0x00431C3E,
+  //   0X00FAD8CD,
+  //   0x002E222C,
+  //   0x0034331F,
+  //   0X00B09770,
+  //   0x006C6B48
+  // ];
+
+  var c = Colors();
+  // var L = [
+  //   c.bblack1,
+  //   c.red1,
+  //   c.green1,
+  //   c.yellow1,
+  //   c.blue1,
+  //   c.magtena1,
+  //   c.cyan1,
+  //   c.white1
+  // ];
+  // var L = [
+  //   c.black2,
+  //   c.red2,
+  //   c.green2,
+  //   c.yellow2,
+  //   c.blue2,
+  //   c.magtena2,
+  //   c.cyan2,
+  //   c.white2
+  // ];
+  // L[(((((matrix[i][j][1] / gscalelen) * 255) *
+  //                               (L.length - 1)) /
+  //                           255))
+  //                       .round()]) ^
+  //                   alpha
+  // for (int p = 0; p < fonts.length; p++) {
+  //   drawfonts = fonts[p];
+
+  int col2 = 0xffffffff;
+
+  int col3 = 0xffCBC0FF;
+  for (int o = 0; o < height; o++) {
+    img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+    // img.fill(imageg, 0xffffffff);
+    img.fill(imageg, col1);
+
+    for (int i = 0; i < width; i++) {
+      var tem = matrix[i][0][0];
+
+      matrix[i][0][0] = matrix[i][height - 1][0];
+
+      for (int j = height - 1; j > 1; j--) {
+        matrix[i][j][0] = matrix[i][j - 1][0];
+      }
+
+      matrix[i][1][0] = tem;
+    }
+
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < height; j++) {
+        //get pixle colors
+        var k = gscale[matrix[i][j][1]];
+        int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+        if (matrix[i][j][0] != 0) {
+          if (matrix[i][j][0] == 2) {
+            img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                color: (col3));
+          } else {
+            img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                color: (col2));
+          }
+        }
+      }
+    }
+
+    var o = img.decodeImage(img.encodePng(imageg));
+
+    gife.addFrame(o!);
+
+    // gife2.addFrame(imageg);
+
+    // File('$folderName/f$ct.png').writeAsBytesSync(img.encodePng(imageg));
+    // ct += 1;
+  }
+  var ff = gife.finish()!;
+  File fl = File('commands.txt');
+  File('$folderName/matrix${imgfobj.c}.gif').writeAsBytesSync(ff);
+  fl.writeAsStringSync(
+      "gifsicle matrix${imgfobj.c}.gif -o matrix${imgfobj.c}.gif --optimize --colors 20 \n",
+      mode: FileMode.append);
+
+  // File('$folderName/matrix${imgfobj.c}-2.png').writeAsBytesSync(ff);
+  // }
+
+  //  print(matrix[0].last[0]);
+}
+
+void cmc(Imgfilterobj imgfobj) {
+  int fconter = 0;
+  img.Image? photo;
+  var font1 = img.BitmapFont.fromZip(
+      File('font/Audiowide-Regular.ttf (1).zip').readAsBytesSync());
+
+  // var font2 = img.BitmapFont.fromZip(
+  //     File('font/Pacifico-Regular.ttf (1).zip').readAsBytesSync());
+
+  // var font3 = img.BitmapFont.fromZip(
+  //     File('font/EduVICWANTBeginner-Bold.ttf (1).zip').readAsBytesSync());
+
+  // var font4 = img.BitmapFont.fromZip(
+  //     File('font/RubikMoonrocks-Regular.ttf (1).zip').readAsBytesSync());
+
+  // var font5 = img.BitmapFont.fromZip(
+  //     File('font/PressStart2P-Regular.ttf.zip').readAsBytesSync());
+
+  // var font6 = img.BitmapFont.fromZip(
+  //     File('font/Ultra-Regular.ttf.zip').readAsBytesSync());
+
+  // var fonts = [font1, font2, font3, font4, font5, font6];
+  final folderName = "gifout";
+  final path = Directory(folderName);
+  path.create();
+  print('$folderName/matrix${imgfobj.c}.gif');
+
+  photo = img.decodeImage(imgfobj.bytes!);
+
+  int height = photo!.height;
+  int ct = 0;
+  int width = photo.width;
+
+  photo = img.copyResize(photo, width: ((width * (70 / height)).round()));
+
+  height = photo.height;
+
+  width = photo.width;
+
+  List<int> photodata = photo.data;
+
+  img.gaussianBlur(photo, imgfobj._vablur!.round());
+
+  var fillcolor = img.getColor(255, 255, 255);
+
+  // if (imgfobj.brc!['black'] == true) {
+  //   fillcolor = img.getColor(0, 0, 0);
+  // } else if (imgfobj.brc!['red'] == true) {
+  //   fillcolor = img.getColor(255, 0, 0);
+  // } else if (imgfobj.brc!['green'] == true) {
+  //   fillcolor = img.getColor(0, 255, 0);
+  // } else if (imgfobj.brc!['blue'] == true) {
+  //   fillcolor = img.getColor(0, 0, 255);
+  // }
+  // bold bitmap font
+  img.arial_14.bold = true;
+  img.BitmapFont drawfonts = font1;
+  var _bold = true;
+  drawfonts.bold = _bold;
+
+  int fontindex = 13;
+
+  if (imgfobj.fonts!['24 px'] == true) {
+    drawfonts = img.arial_24;
+
+    fontindex = 22;
+  }
+
+  String gscale = imgfobj.gscale1;
+  int gscalelen = gscale.length - 1;
+
+  if (imgfobj.symbols!['only symbols'] == true) {
+    gscale = imgfobj.gscale2;
+
+    gscalelen = gscale.length - 1;
+  } else if (imgfobj.symbols!['only letters'] == true) {
+    gscale = imgfobj.gscale3;
+
+    gscalelen = gscale.length - 1;
+  }
+
+  // img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+  // img.fill(imageg, fillcolor);
+
+  List<List<List<int>>> matrix = [];
+
+  var g = Random(56);
+
+  int index = g.nextInt(21) + 20;
+
+  bool visable = true;
+
+  var color = 0X0026F64A;
+
+  for (int i = 0; i < width; i++) {
+    List<List<int>> line = [];
+
+    for (int j = 0; j < height; j++) {
+      //get pixle colors
+
+      int red = photodata[j * width + i] & 0xff;
+      int green = (photodata[j * width + i] >> 8) & 0xff;
+      int blue = (photodata[j * width + i] >> 16) & 0xff;
+
+      //cal avg
+      double avg = (blue + red + green) / 3;
+
+      index = index - 1;
+
+      if (index == 0) {
+        if (visable == true) {
+          index = g.nextInt(21) + 5;
+          visable = false;
+        } else {
+          index = g.nextInt(21) + 20;
+          visable = true;
+        }
+      }
+
+      // var k = gscale[((avg * gscalelen) / 255).round()];
+
+      // int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+      if (visable == true) {
+        if (index == 1) {
+          line.add([2, ((avg * gscalelen) / 255).round()]);
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          // color: (0X00ffffff ^ alpha));
+
+        } else {
+          line.add([1, ((avg * gscalelen) / 255).round()]);
+
+          // img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+          //     color: (color ^ alpha));
+        }
+      } else {
+        line.add([0, ((avg * gscalelen) / 255).round()]);
+      }
+    }
+    matrix.add(line);
+  }
+
+  // File('haha/fram${fconter}.png').writeAsBytesSync(img.encodePng(imageg));
+  // fconter += 1; 0xff242120
+  var gife = GifEncoder(delay: 7, samplingFactor: 100);
+  gife.ditherSerpentine = true;
+  // var gife2 = GifEncoder(delay: 7, samplingFactor: 100);
+  // var L = [
+  //   // 0x00FFFFFF,
+  //   // 0X00688410,
+  //   // 0x00242120,
+  //   0x00242120,
+  //   0X00567313,
+  //   0x00FFFFFF,
+  //   0x00101010,
+  //   0X00069A4E,
+  //   0x00CFD7D3,
+  //   // 0x00362B00,
+  //   // 0X00009985,
+  //   // 0x00D5E8EE
+  // ].reversed.toList();
+
+  // var L = [
+  //   0x00FFFFFF,
+  //   0X00688410,
+  //   0x00242120,
+  //   0x00F59AB3,
+  //   0x008BA0FF,
+  //   0x007B4D43,
+  //   0x00999000,
+  //   0x00362B00,
+  //   0X00009985,
+  //   0x00D5E8EE
+  // ];
+  // var L = [
+  //   0x00FFFFFF,
+  //   0X00688410,
+  //   0x00242120,
+  //   0x00242120,
+  //   0X00567313,
+  //   0x00FFFFFF,
+  //   0x00101010,
+  //   0X00069A4E,
+  //   0x00CFD7D3,
+  //   0x00362B00,
+  //   0X00009985,
+  //   0x00D5E8EE,
+  //   0x00E3F6FD,
+  //   0X00009985,
+  //   0x00423607,
+  //   0x003E2722,
+  //   0X00EFFEE3,
+  //   0x007B4D43,
+  //   0x00431C3E,
+  //   0X00FAD8CD,
+  //   0x002E222C,
+  //   0x0034331F,
+  //   0X00B09770,
+  //   0x006C6B48
+  // ];
+
+  var c = Colors();
+  // var L = [
+  //   c.bblack1,
+  //   c.red1,
+  //   c.green1,
+  //   c.yellow1,
+  //   c.blue1,
+  //   c.magtena1,
+  //   c.cyan1,
+  //   c.white1
+  // ];
+  var l2 = [
+    c.black2,
+    c.red2,
+    c.green2,
+    c.yellow2,
+    c.blue2,
+    c.magtena2,
+    c.cyan2,
+    c.white2
+  ];
+
+  var l1 = [
+    c.black1,
+    c.red1,
+    c.green1,
+    c.yellow1,
+    c.blue1,
+    c.magtena1,
+    c.cyan1,
+    c.white1
+  ];
+
+  var L = [l2, l1];
+  // L[(((((matrix[i][j][1] / gscalelen) * 255) *
+  //                               (L.length - 1)) /
+  //                           255))
+  //                       .round()]) ^
+  //                   alpha
+  for (int p = 0; p < L.length; p++) {
+    var dL = L[p];
+    for (int o = 0; o < height; o++) {
+      img.Image imageg = img.Image(width * fontindex, height * fontindex);
+
+      // img.fill(imageg, 0xffffffff);
+      img.fill(imageg, 0x00242120);
+
+      for (int i = 0; i < width; i++) {
+        var tem = matrix[i][0][0];
+
+        matrix[i][0][0] = matrix[i][height - 1][0];
+
+        for (int j = height - 1; j > 1; j--) {
+          matrix[i][j][0] = matrix[i][j - 1][0];
+        }
+
+        matrix[i][1][0] = tem;
+      }
+
+      for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+          //get pixle colors
+          var k = gscale[matrix[i][j][1]];
+          int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
+
+          if (matrix[i][j][0] != 0) {
+            if (matrix[i][j][0] == 2) {
+              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                  color: (0x00eeeeee ^ alpha));
+            } else {
+              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
+                  color: (dL[(((((matrix[i][j][1] / gscalelen) * 255) *
+                                  (dL.length - 1)) /
+                              255)
+                          .round())]) ^
+                      alpha);
+            }
+          }
+        }
+      }
+
+      var o = img.decodeImage(img.encodePng(imageg));
+
+      gife.addFrame(o!);
+
+      // gife2.addFrame(imageg);
+
+      // File('$folderName/f$ct.png').writeAsBytesSync(img.encodePng(imageg));
+      // ct += 1;
+    }
+    var ff = gife.finish()!;
+    File fl = File('commands.txt');
+    File('$folderName/matrix${imgfobj.c}-$p.gif').writeAsBytesSync(ff);
+    fl.writeAsStringSync(
+        "gifsicle  matrix${imgfobj.c}-$p.gif -o matrix${imgfobj.c}-$p.gif --optimize --colors 25 \n",
+        mode: FileMode.append);
+  }
+  // File('$folderName/matrix${imgfobj.c}-2.png').writeAsBytesSync(ff);
   // }
 
   //  print(matrix[0].last[0]);
@@ -1488,6 +2285,10 @@ void randomcolorsgif(Imgfilterobj imgfobj) {
     gife.addFrame(imageg);
   }
   File('$folderName/gif${imgfobj.c}.gif').writeAsBytesSync(gife.finish()!);
+  File fl = File('commands.txt');
+  fl.writeAsStringSync(
+      "gifsicle  gif${imgfobj.c}.gif -o gif${imgfobj.c}.gif --optimize --colors 25 \n",
+      mode: FileMode.append);
 
   //  print(matrix[0].last[0]);
 }
@@ -1766,11 +2567,11 @@ void a(Imgfilterobj imgfobj) {
   //  print(matrix[0].last[0]);
 }
 
-void matrixm(Imgfilterobj imgfobj) {
+void fadematrixm(Imgfilterobj imgfobj) {
   int fconter = 0;
   img.Image? photo;
 
-  final folderName = "gifout";
+  final folderName = "fadegifout";
   final path = Directory(folderName);
   path.create();
 
@@ -2169,7 +2970,7 @@ void shiftframes(Imgfilterobj imgfobj) {
 
 Future<void> main(List<String> arguments) async {
   print(arguments);
-  int counter = 8888;
+  int counter = 15006;
 
   double _valuecom = 0.15;
 
@@ -2200,14 +3001,12 @@ Future<void> main(List<String> arguments) async {
     'solrized': false
   };
   Map<String, bool> filtersmap2 = {
-    'sepia': false,
-    'photo hash 2': false,
-    'photo hash 3': false,
-    'Rainbow Random': false,
-    'Random colors': false,
-    'cmatrix modren': true,
-    'solrized': true,
-    'Grey scale': false,
+    // 'sepia': false,
+    // 'photo hash 2': false,
+    // 'photo hash 3': false,
+    // 'solrized': true,
+    // 'Grey scale': false,
+    'Normal colors': true,
   };
 
   // Map<String, bool> typemap = {
@@ -2255,7 +3054,7 @@ Future<void> main(List<String> arguments) async {
 
   Directory dir = Directory('./image');
 // execute an action on each entry
-  dir.list(recursive: false).forEach((f) {
+  dir.list(recursive: false).forEach((f) async {
     if (f is File) {
       print(f);
       imagebytes = (f).readAsBytesSync();
@@ -2265,29 +3064,48 @@ Future<void> main(List<String> arguments) async {
 
       //   filtersmap[keysf[i]] = true;
 
-      //   for (int j = 0; j < keysb.length; j++) {
-      //     brcmap.forEach((k, v) => brcmap[k] = false);
+      //   //   //   for (int j = 0; j < keysb.length; j++) {
+      //   //   //     brcmap.forEach((k, v) => brcmap[k] = false);
 
-      //     brcmap[keysb[j]] = true;
+      //   //   //     brcmap[keysb[j]] = true;
 
-      //     for (int k = 0; k < keyss.length; k++) {
-      //       symbolsmap.forEach((g, v) => symbolsmap[g] = false);
+      //   //   //     for (int k = 0; k < keyss.length; k++) {
+      //   //   //       symbolsmap.forEach((g, v) => symbolsmap[g] = false);
 
-      //       symbolsmap[keyss[k]] = true;
+      //   //   //       symbolsmap[keyss[k]] = true;
 
-      var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur, filtersmap,
-          brcmap, fontmap, symbolsmap, counter, qouting);
-      // // photohash(imgfobj);
-      // // fadeframes(imgfobj);
-      // // shiftframes(imgfobj);
-      cmatrixframscolor(imgfobj);
-      // randomcolorsgif(imgfobj);
+        var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
+            filtersmap, brcmap, fontmap, symbolsmap, counter, qouting);
+      //   //   // // photohash(imgfobj);
+      //   //   // // fadeframes(imgfobj);
+      //   //   // // shiftframes(imgfobj);
+        cmatrixframscolor(imgfobj);
+        counter++;
+      // }
+      // // randomcolorsgif(imgfobj);
+      // // File fl = File('commands.txt');
       // for (int k = 0; k < colors.length; k++) {
       //   var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
       //       filtersmap, brcmap, fontmap, symbolsmap, counter, qouting);
+
       //   c3c(imgfobj, colors[k][0], colors[k][1], colors[k][2]);
+
+      //   //  await fl.writeAsString(
+      //   //       "gifsicle  matrix$counter.gif -o matrix$counter.gif --optimize --colors 25 \n",
+      //   //       mode: FileMode.append);
       //   counter++;
       // }
+
+      // var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur, filtersmap,
+      //     brcmap, fontmap, symbolsmap, counter, qouting);
+
+      // cmc(imgfobj);
+
+      // //  await fl.writeAsString(
+      // //       "gifsicle  matrix$counter.gif -o matrix$counter.gif --optimize --colors 25 \n",
+      // //       mode: FileMode.append);
+      // counter++;
+      // cmatrixngtive(imgfobj);
 
       // rainbowgif(imgfobj);
       // rainbowgifls(imgfobj);
@@ -2297,8 +3115,22 @@ Future<void> main(List<String> arguments) async {
       //      Imgfilterobjtxt(imagebytes!, columns, symbolsmap, counter);
 
       //  photohashtxt(imgfobjtxt);
+      // var A = [
+      //   rtog(0xFF0096FF),
+      //   rtog(0xFF00A36C),
+      //   rtog(0xFFA52A2A),
+      //   rtog(0xFFFA5F55),
+      //   rtog(0xFFFF69B4),
+      //   rtog(0xFF36454F),
+      //   rtog(0xFF722F37)
+      // ];
+      // for (int i = 0; i < A.length; i++) {
+      //   var imgfobj = Imgfilterobj(imagebytes!, _valuecom, _valueblur,
+      //       filtersmap, brcmap, fontmap, symbolsmap, counter, qouting);
+      //   cb(imgfobj, A[i]);
+      //   counter++;
+      // }
 
-      // counter++;
       //     }
       // }
       // }
