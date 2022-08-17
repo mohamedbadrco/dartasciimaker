@@ -5,10 +5,7 @@ import 'package:image/image.dart' as img;
 import 'dart:io';
 import 'dart:math';
 
-
 import 'package:image/image.dart';
-
-
 
 final now = DateTime.now();
 final y = now.year;
@@ -50,11 +47,13 @@ void cmc(Imgfilterobj imgfobj) {
   int ct = 0;
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: ((width * (100 / height)).round()));
+  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
 
   height = photo.height;
 
   width = photo.width;
+
+  var g = Random(imgfobj.c! + y + m + d + h + min);
 
   List<int> photodata = photo.data;
 
@@ -72,20 +71,14 @@ void cmc(Imgfilterobj imgfobj) {
   //   fillcolor = img.getColor(0, 0, 255);
   // }
   // bold bitmap font
-  img.arial_14.bold = true;
-  img.BitmapFont drawfonts = font1;
-  var bold = true;
-  drawfonts.bold = bold;
+  font1.bold = true;
+  img.BitmapFont deffonts = img.arial_14;
 
-  int fontindex = 12;
+  int fontindex = 13;
+  var bo = g.nextInt(imgfobj.gscale1.length - 2);
+  String gscale = imgfobj.gscale1
+      .substring(bo, bo + g.nextInt(imgfobj.gscale1.length - bo - 1));
 
-  if (imgfobj.fonts!['24 px'] == true) {
-    drawfonts = img.arial_24;
-
-    fontindex = 22;
-  }
-
-  String gscale = imgfobj.gscale1;
   int gscalelen = gscale.length - 1;
 
   if (imgfobj.symbols!['only symbols'] == true) {
@@ -103,8 +96,6 @@ void cmc(Imgfilterobj imgfobj) {
   // img.fill(imageg, fillcolor);
 
   List<List<List<int>>> matrix = [];
-
-  var g = Random(imgfobj.c);
 
   int index = g.nextInt(21) + 20;
 
@@ -286,7 +277,7 @@ void cmc(Imgfilterobj imgfobj) {
     //   0X00000000 | nextInt2 | other3 | other4
     // ];
     List<int> as = [];
-    for (int j = 0; j < 7; j++) {
+    for (int j = 0; j < 10; j++) {
       as.add(0X00000000 |
           g.nextInt(256) |
           (g.nextInt(256)) << 8 |
@@ -322,6 +313,7 @@ void cmc(Imgfilterobj imgfobj) {
     //   bother = (g.nextInt(256)) << 8;
     //   bother2 = (g.nextInt(256) << 16);
     // }
+    img.BitmapFont drawfonts = font1;
 
     var bc = 0Xff000000 | bnextInt | (bnextInt << 8) | (bnextInt << 16);
 
@@ -329,7 +321,7 @@ void cmc(Imgfilterobj imgfobj) {
       img.Image imageg = img.Image(width * fontindex, height * fontindex);
 
       // img.fill(imageg, 0xffffffff);
-      img.fill(imageg, bc);
+      img.fill(imageg, 0xff000000);
 
       for (int i = 0; i < width; i++) {
         var tem = matrix[i][0][0];
@@ -347,6 +339,11 @@ void cmc(Imgfilterobj imgfobj) {
         for (int j = 0; j < height; j++) {
           //get pixle colors
           var k = gscale[matrix[i][j][1]];
+          if (k == "\$") {
+            drawfonts = deffonts;
+          } else {
+            drawfonts = font1;
+          }
           int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
 
           if (matrix[i][j][0] != 0) {
