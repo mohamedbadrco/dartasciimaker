@@ -14,7 +14,7 @@ final d = now.day;
 final h = now.hour;
 final min = now.minute;
 
-void fun5(Imgfilterobj imgfobj) {
+void fun3(Imgfilterobj imgfobj) {
   int fconter = 0;
   img.Image? photo;
   var font1 = img.BitmapFont.fromZip(
@@ -69,18 +69,19 @@ void fun5(Imgfilterobj imgfobj) {
   //   fillcolor = img.getColor(0, 0, 255);
   // }
   // bold bitmap font
+  img.arial_14.bold = true;
+  img.BitmapFont drawfonts = font1;
+  var bold = true;
+  drawfonts.bold = bold;
 
-  font1.bold = true;
-  img.BitmapFont deffonts = img.arial_14;
-
-  int fontindex = 13;
+  int fontindex = 12;
 
   if (imgfobj.fonts!['24 px'] == true) {
-    deffonts = img.arial_24;
+    drawfonts = img.arial_24;
 
     fontindex = 22;
   }
-  deffonts.bold = true;
+
   String gscale = imgfobj.gscale1;
   int gscalelen = gscale.length - 1;
 
@@ -283,14 +284,16 @@ void fun5(Imgfilterobj imgfobj) {
     // ];
     List<int> as = [];
     for (int j = 0; j < 7; j++) {
-      as.add(0X00000000 |
-          g.nextInt(256) |
-          (g.nextInt(256)) << 8 |
-          (g.nextInt(256) << 16));
+      var j1 = g.nextInt(256);
+      as.add(0X00000000 | j1 | (j1) << 8 | (j1 << 16));
     }
     L.add(as);
   }
-
+  // L[(((((matrix[i][j][1] / gscalelen) * 255) *
+  //                               (L.length - 1)) /
+  //                           255))
+  //                       .round()]) ^
+  //                   alpha
   for (int p = 0; p < L.length; p++) {
     var endc = 0Xff000000 |
         g.nextInt(256) |
@@ -314,11 +317,10 @@ void fun5(Imgfilterobj imgfobj) {
     //   bother = (g.nextInt(256)) << 8;
     //   bother2 = (g.nextInt(256) << 16);
     // }
-    img.BitmapFont drawfonts = font1;
 
-    var bc = 0Xff000000 | bnextInt | (bnextInt << 8) | (bnextInt << 16);
+    var bc = 0Xff000000 | bnextInt | bother | bother2;
     int lc = 0;
-    for (int oo = 0; oo < (height * 20); oo++) {
+    for (int oo = 0; oo < (height * 7); oo++) {
       img.Image imageg = img.Image(width * fontindex, height * fontindex);
 
       // img.fill(imageg, 0xffffffff);
@@ -335,78 +337,22 @@ void fun5(Imgfilterobj imgfobj) {
 
         matrix[i][1][0] = tem;
       }
-      var off = 0;
-      var off2 = 0;
-      var rand = g.nextBool();
-
-      if (oo % 20 == 0) {
+      if (oo % 7 == 0) {
         lc += 1;
-        off = 0;
       }
-      if (rand) {
-        if (oo % 20 == 2) {
-          off = (width * 0.15).round() * (g.nextBool() ? 1 : -1);
-          off2 = off;
-        }
-        if (oo % 20 == 4) {
-          off = 0;
-        }
-        if (oo % 20 == 6) {
-          off = -(width * 0.15).round() * (g.nextBool() ? 1 : -1);
-          off2 = off;
-        }
-        if (oo % 20 == 8) {
-          off = 0;
-        }
-      } else {
-        if (oo % 20 == 2) {
-          off = (width * 0.15).round() * (g.nextBool() ? 1 : -1);
-          off2 = -off;
-        }
-        if (oo % 20 == 4) {
-          off = 0;
-        }
-        if (oo % 20 == 6) {
-          off = (width * 0.15).round() * (g.nextBool() ? 1 : -1);
-          off2 = -off;
-        }
-        if (oo % 20 == 8) {
-          off = 0;
-        }
-      }
-      // print("$rand :  $off :: $off2");
+
       for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
           //get pixle colors
           var k = gscale[matrix[i][j][1]];
-          if (k == "\$") {
-            drawfonts = deffonts;
-          } else {
-            drawfonts = font1;
-          }
           int alpha = (((photodata[j * width + i] >> 24) & 0xff) << 24);
 
           if ((matrix[i][j][0] != 0) || (lc > ((height - 1) - j))) {
-            if ((matrix[i][j][0] == 2 && !(lc > ((height - 1) - j)))) {
-              img.drawString(
-                  imageg, drawfonts, (i * fontindex), j * fontindex, k,
-                  color: (0x00ffffff ^ alpha));
-            } else if ((oo % 20 <= 2) && (lc > ((height - 1) - j))) {
-              img.drawString(imageg, drawfonts, (i * fontindex) + off,
-                  (j * fontindex) + off2, k,
+            if (matrix[i][j][0] == 2 && !(lc > ((height - 1) - j))) {
+              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
                   color: (0x00ffffff ^ alpha));
             } else {
-              if (lc > ((height - 1) - j)) {
-                img.drawString(imageg, drawfonts, (i * fontindex) + off,
-                    (j * fontindex) + off2, k,
-                    color: (dL[(((((matrix[i][j][1] / gscalelen) * 255) *
-                                    (dL.length - 1)) /
-                                255)
-                            .round())]) ^
-                        alpha);
-              }
-              img.drawString(
-                  imageg, drawfonts, (i * fontindex), j * fontindex, k,
+              img.drawString(imageg, drawfonts, i * fontindex, j * fontindex, k,
                   color: (dL[(((((matrix[i][j][1] / gscalelen) * 255) *
                                   (dL.length - 1)) /
                               255)
@@ -420,14 +366,22 @@ void fun5(Imgfilterobj imgfobj) {
       var o = img.decodeImage(img.encodePng(imageg));
 
       gife.addFrame(o!);
+
+      // gife2.addFrame(imageg);
+
+      // File('$folderName/f$ct.png').writeAsBytesSync(img.encodePng(imageg));
+      // ct += 1;
     }
     var ff = gife.finish()!;
     File fl = File('commands.txt');
     File('$folderName/matrix$y-$m-$d-$h-$min-${imgfobj.c}-$p.gif')
         .writeAsBytesSync(ff);
-    fl.writeAsStringSync("""
-gifsicle  matrix$y-$m-$d-$h-$min${imgfobj.c}-$p.gif 
--o matrix${imgfobj.c}-$p.gif --optimize --colors 25 \n""",
+    fl.writeAsStringSync(
+        "gifsicle  matrix$y-$m-$d-$h-$min${imgfobj.c}-$p.gif -o matrix${imgfobj.c}-$p.gif --optimize --colors 25 \n",
         mode: FileMode.append);
   }
+  // File('$folderName/matrix${imgfobj.c}-2.png').writeAsBytesSync(ff);
+  // }
+
+  //  print(matrix[0].last[0]);
 }

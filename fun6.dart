@@ -47,7 +47,7 @@ void fun6(Imgfilterobj imgfobj) {
   int ct = 0;
   int width = photo.width;
 
-  photo = img.copyResize(photo, width: ((width * (60 / height)).round()));
+  photo = img.copyResize(photo, width: ((width * (43 / height)).round()));
 
   height = photo.height;
 
